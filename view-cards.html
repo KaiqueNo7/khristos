@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khristós - Visualizador de Cartas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0a0a0c;
+      --card-glass: rgba(255, 255, 255, 0.05);
+      --border-glass: rgba(255, 255, 255, 0.1);
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --accent-gold: #ffcc00;
+      --accent-blue: #00b4ff;
+      --accent-red: #ff4b2b;
+      --accent-purple: #a855f7;
+      --rarity-lendario: linear-gradient(135deg, #FFD700, #FDB931, #FFD700);
+      --rarity-epico: linear-gradient(135deg, #bf5af2, #5e5ce6);
+      --rarity-raro: linear-gradient(135deg, #0A84FF, #0040DD);
+      --rarity-comum: linear-gradient(135deg, #32D74B, #30D158);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    .background-blob {
+      position: fixed;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      top: -10vw;
+      right: -10vw;
+      z-index: -1;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 3rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .title-section h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      background: linear-gradient(to right, #fff, #a0a0a0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-container {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+
+    .search-container input {
+      width: 100%;
+      background: var(--card-glass);
+      border: 1px solid var(--border-glass);
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .search-container input:focus {
+      border-color: var(--accent-purple);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip,
+    .filter-order {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      background: var(--card-glass);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-chip.active {
+      background: var(--accent-purple);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+    }
+
+    .stats-summary {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 1.5rem;
+      opacity: 0.8;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 400px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .card.has-bg::before {
+      opacity: 1;
+    }
+
+    .card>* {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-rarity {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    .rarity-lendario {
+      background: var(--rarity-lendario);
+      color: #000;
+    }
+
+    .rarity-epico {
+      background: var(--rarity-epico);
+      color: #fff;
+    }
+
+    .rarity-raro {
+      background: var(--rarity-raro);
+      color: #fff;
+    }
+
+    .rarity-comum {
+      background: var(--rarity-comum);
+      color: #fff;
+    }
+
+    .card-cost {
+      background: rgba(0, 0, 0, 0.3);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid var(--accent-gold);
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .card-stats {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .stat-badge {
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 100%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .stat-value.fe {
+      color: var(--accent-blue);
+    }
+
+    .stat-value.fraq {
+      color: var(--accent-red);
+    }
+
+    .card-effect {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #ffffff;
+      font-weight: 500;
+      flex-grow: 1;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card-footer {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .deck-badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .benchmark-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-detail-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      cursor: zoom-out;
+    }
+
+    .card-detail-container {
+      position: relative;
+      max-width: 500px;
+      width: 100%;
+      cursor: default;
+      animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .card-detail-container .card {
+      min-height: 600px;
+      transform: scale(1.1);
+      cursor: default;
+    }
+
+    .close-detail {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: var(--card-glass);
+      border: 1px solid var(--border-glass);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 1001;
+      transition: all 0.3s;
+    }
+
+    .close-detail:hover {
+      background: var(--accent-red);
+      transform: rotate(90deg);
+    }
+
+    @media (max-width: 600px) {
+      .card-detail-container .card {
+        transform: scale(1);
+        min-height: 500px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background-blob"></div>
+
+  <header>
+    <div class="title-section">
+      <h1>Khristós <span style="font-weight: 300; opacity: 0.6;">Grimório</span></h1>
+    </div>
+
+    <div class="controls">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Pesquisar cartas, efeitos ou tipos...">
+      </div>
+
+      <div class="sort-container">
+        <select id="sortSelect" class="filter-order"
+          style="border-radius: 12px; height: 100%; appearance: none; padding-right: 2rem; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0a0a0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 0.7rem top 50%; background-size: 0.65rem auto;">
+          <option value="name" selected>Ordenar: Nome</option>
+          <option value="cost">Ordenar: Sabedoria (Custo)</option>
+          <option value="type">Ordenar: Tipo</option>
+          <option value="sub">Ordenar: Raridade</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-chip active" data-filter="all">Todos</div>
+        <div class="filter-chip" data-filter="Santo">Santos</div>
+        <div class="filter-chip" data-filter="Unidade">Unidades</div>
+        <div class="filter-chip" data-filter="Monumento">Monumentos</div>
+        <div class="filter-chip" data-filter="Relíquia">Relíquias</div>
+        <div class="filter-chip" data-filter="Milagre">Milagres</div>
+        <div class="filter-chip" data-filter="Heresia">Heresias</div>
+      </div>
+    </div>
+
+    <div class="stats-summary" id="statsSummary">
+      <!-- Stats populated by JS -->
+    </div>
+  </header>
+
+  <main class="card-grid" id="cardGrid">
+    <!-- Cards populated by JS -->
+  </main>
+
+  <div class="card-detail-overlay" id="cardDetailOverlay" onclick="closeDetail()">
+    <button class="close-detail" onclick="closeDetail()">&times;</button>
+    <div class="card-detail-container" id="cardDetailContainer" onclick="event.stopPropagation()">
+      <!-- Detailed card will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    let allCards = {};
+    let deckLists = {};
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let currentSort = 'name';
+
+    async function loadCards() {
+      try {
+        const response = await fetch('cards.json');
+        const data = await response.json();
+        allCards = data.CARD_DEFS;
+        deckLists = data.DECK_LISTS;
+        renderCards();
+      } catch (err) {
+        console.error("Erro ao carregar cartas:", err);
+        document.getElementById('cardGrid').innerHTML = `<p style="color:red">Erro ao carregar cards.json. Verifique o console.</p>`;
+      }
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cardGrid');
+      grid.innerHTML = '';
+
+      const filtered = Object.values(allCards).filter(card => {
+        const matchesFilter = currentFilter === 'all' || card.type === currentFilter;
+        const matchesSearch = card.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          card.effect.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          card.type.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesFilter && matchesSearch;
+      });
+
+      // Ordenar resultados
+      const rarityRank = { "Lendário": 1, "Épico": 2, "Raro": 3, "Comum": 4 };
+
+      filtered.sort((a, b) => {
+        if (currentSort === 'cost') {
+          return a.cost - b.cost;
+        } else if (currentSort === 'type') {
+          return a.type.localeCompare(b.type);
+        } else if (currentSort === 'sub') {
+          return (rarityRank[a.sub] || 5) - (rarityRank[b.sub] || 5);
+        } else {
+          return a.name.localeCompare(b.name);
+        }
+      });
+
+      filtered.forEach(card => {
+        const cardEl = createCardElement(card);
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function createCardElement(card, isZoomed = false) {
+      const div = document.createElement('div');
+      div.className = isZoomed ? 'card zoomed' : 'card';
+      div.dataset.id = card.id;
+
+      if (card.backgroundImage) {
+        div.classList.add('has-bg');
+        div.style.backgroundImage = `url('${card.backgroundImage}')`;
+      }
+
+      const rarityNormalized = card.sub.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      const rarityClass = `rarity-${rarityNormalized}`;
+
+      div.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <span class="card-rarity ${rarityClass}">${card.sub}</span>
+                        <h2 class="card-title">${card.name}</h2>
+                        <div class="card-subtitle">${card.type}${card.sub ? ' • ' + card.sub : ''}</div>
+                    </div>
+                    <div class="card-cost">${card.cost}</div>
+                </div>
+
+                <div class="card-effect">${card.effect}</div>
+
+                ${card.type === 'Unidade' || card.type === 'Santo' || card.type === 'Monumento' ? `
+                <div class="card-stats">
+                    <div class="stat-badge">
+                        <span class="stat-label">Fé</span>
+                        <span class="stat-value fe">${card.fe || 0}</span>
+                    </div>
+                    <div class="stat-badge">
+                        <span class="stat-label">Fraq</span>
+                        <span class="stat-value fraq">${card.fraq || 0}</span>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+      if (!isZoomed) {
+        div.addEventListener('click', () => showCardDetail(card.id));
+      }
+
+      return div;
+    }
+
+    // Modal Logic
+    function showCardDetail(id) {
+      const card = allCards[id];
+      const container = document.getElementById('cardDetailContainer');
+      container.innerHTML = '';
+
+      const detailedCard = createCardElement(card, true);
+      container.appendChild(detailedCard);
+
+      const overlay = document.getElementById('cardDetailOverlay');
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    function closeDetail() {
+      const overlay = document.getElementById('cardDetailOverlay');
+      overlay.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    // Event Listeners
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderCards();
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderCards();
+    });
+
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentFilter = chip.dataset.filter;
+        renderCards();
+      });
+    });
+
+    loadCards();
+  </script>
+</body>
+
+</html>

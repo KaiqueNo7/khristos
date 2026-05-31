@@ -1,0 +1,1682 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KhristÃ³s â€” ProtÃ³tipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* â”€â”€â”€ RESET & VARS â”€â”€â”€ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold: #C9A84C;
+  --gold-dim: #8a6d2e;
+  --cream: #F5EDD8;
+  --dark: #0e0c09;
+  --panel: #14110d;
+  --panel2: #1c1812;
+  --border: #3a3020;
+  --red: #8B2020;
+  --blue: #1a3a5c;
+  --aq: #4A6FA5;
+  --aq-dim: #2a4060;
+  --jo: #9B3A1A;
+  --jo-dim: #5a2010;
+  --fÃ©-color: #d4a847;
+  --fraq-color: #c0392b;
+  --sab-color: #5b9bd5;
+  --text: #e8dcc8;
+  --text-dim: #9a8c74;
+  --green: #2d6a2d;
+  --heresia: #6b1a1a;
+  --milagre: #1a4a1a;
+}
+
+html, body { height: 100%; background: var(--dark); color: var(--text); font-family: 'Crimson Text', serif; overflow: hidden; user-select: none; }
+
+/* â”€â”€â”€ SCREENS â”€â”€â”€ */
+.screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+.screen.hidden { display: none; }
+
+/* â”€â”€â”€ TITLE SCREEN â”€â”€â”€ */
+#screen-title {
+  background: radial-gradient(ellipse at 50% 30%, #2a1f0a 0%, #0e0c09 70%);
+  flex-direction: column; gap: 2rem;
+}
+#screen-title::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A84C' fill-opacity='0.04'%3E%3Cpath d='M30 0L31 29H60L35 47L45 75L30 58L15 75L25 47L0 29H29z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.title-cross {
+  font-size: 3rem; color: var(--gold); opacity: 0.6;
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.05)} }
+.title-main { font-family: 'Cinzel', serif; font-size: clamp(2.5rem,6vw,4.5rem); color: var(--gold); letter-spacing: 0.15em; text-shadow: 0 0 40px rgba(201,168,76,0.4); text-align: center; }
+.title-sub { font-family: 'Crimson Text', serif; font-size: 1.1rem; color: var(--text-dim); letter-spacing: 0.3em; text-transform: uppercase; text-align: center; }
+.title-rule { width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+.btn-primary {
+  font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.15em;
+  padding: 0.8rem 2.5rem; background: transparent;
+  border: 1px solid var(--gold); color: var(--gold); cursor: pointer;
+  transition: all 0.3s; position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--gold); transform: translateX(-100%); transition: transform 0.3s; z-index: -1;
+}
+.btn-primary:hover { color: var(--dark); }
+.btn-primary:hover::before { transform: translateX(0); }
+
+/* â”€â”€â”€ DECK SELECT â”€â”€â”€ */
+#screen-deckselect { flex-direction: column; gap: 2rem; background: radial-gradient(ellipse at 50% 30%, #1a150a 0%, #0e0c09 70%); }
+.deck-select-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold); letter-spacing: 0.1em; text-align: center; }
+.deck-select-title small { display: block; font-family: 'Crimson Text', serif; font-size: 0.9rem; color: var(--text-dim); letter-spacing: 0.2em; margin-top: 0.3rem; }
+.decks-row { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+.deck-card {
+  width: 280px; border: 1px solid var(--border); padding: 2rem 1.5rem;
+  cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+  background: var(--panel);
+}
+.deck-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s; }
+.deck-card.aq::before { background: radial-gradient(ellipse at 50% 0%, rgba(74,111,165,0.2) 0%, transparent 70%); }
+.deck-card.jo::before { background: radial-gradient(ellipse at 50% 0%, rgba(155,58,26,0.2) 0%, transparent 70%); }
+.deck-card:hover::before { opacity: 1; }
+.deck-card.aq { border-color: var(--aq-dim); }
+.deck-card.aq:hover { border-color: var(--aq); box-shadow: 0 0 30px rgba(74,111,165,0.3); }
+.deck-card.jo { border-color: var(--jo-dim); }
+.deck-card.jo:hover { border-color: var(--jo); box-shadow: 0 0 30px rgba(155,58,26,0.3); }
+.deck-card-name { font-family: 'Cinzel', serif; font-size: 1.2rem; margin-bottom: 0.3rem; }
+.deck-card.aq .deck-card-name { color: var(--aq); }
+.deck-card.jo .deck-card-name { color: var(--jo); }
+.deck-card-style { font-size: 0.85rem; color: var(--text-dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+.deck-card-desc { font-size: 1rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1rem; }
+.deck-card-stats { display: flex; gap: 1rem; }
+.dstat { font-size: 0.9rem; }
+.dstat span { color: var(--gold); font-weight: 600; }
+
+/* â”€â”€â”€ GAME SCREEN â”€â”€â”€ */
+#screen-game {
+  flex-direction: column; padding: 0;
+  background: #0b0906;
+  overflow: hidden;
+}
+
+/* HUD TOP */
+.hud-top {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; padding: 0.4rem 1rem;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.hud-player { display: flex; align-items: center; gap: 0.8rem; }
+.hud-player.enemy { flex-direction: row-reverse; }
+.player-name { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.08em; }
+.player-name.aq { color: var(--aq); }
+.player-name.jo { color: var(--jo); }
+.res-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.res-pill {
+  font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 3px;
+  font-family: 'Cinzel', serif; letter-spacing: 0.05em;
+}
+.pill-fe { background: rgba(212,168,71,0.15); border: 1px solid rgba(212,168,71,0.4); color: var(--fÃ©-color); }
+.pill-sab { background: rgba(91,155,213,0.15); border: 1px solid rgba(91,155,213,0.4); color: var(--sab-color); }
+.pill-fraq { background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.4); color: var(--fraq-color); }
+.hud-center { text-align: center; }
+.turn-info { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--gold); letter-spacing: 0.1em; }
+.btn-end-turn {
+  margin-top: 0.3rem; padding: 0.25rem 0.9rem;
+  font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.1em;
+  background: transparent; border: 1px solid var(--gold); color: var(--gold);
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-end-turn:hover { background: var(--gold); color: var(--dark); }
+.btn-end-turn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* â”€â”€â”€ BOARD â”€â”€â”€ */
+.board-area {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+.board-table {
+  flex: 1; display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  padding: 0.5rem;
+  overflow: hidden;
+}
+.player-row {
+  display: flex; gap: 0.4rem; align-items: stretch;
+}
+
+/* ZONES */
+.zone-group {
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.zone-label {
+  font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.15em;
+  text-align: center; color: var(--text-dim); text-transform: uppercase; padding: 0.1rem 0;
+}
+.zone-divider {
+  width: 2px; background: var(--border); flex-shrink: 0; border-radius: 1px;
+  position: relative;
+}
+.zone-divider::after {
+  content: 'âœ¦'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--gold-dim); font-size: 0.7rem; background: var(--dark); padding: 0.2rem;
+}
+.slots-row {
+  display: flex; gap: 0.3rem; flex: 1;
+}
+
+.slot {
+  flex: 1; border: 1px dashed rgba(201,168,76,0.15);
+  border-radius: 4px; position: relative;
+  background: rgba(255,255,255,0.01);
+  transition: all 0.2s; cursor: default;
+  min-height: 80px; min-width: 60px;
+  display: flex; align-items: center; justify-content: center;
+}
+.slot.zone-1 { border-color: rgba(74,111,165,0.2); }
+.slot.zone-3 { border-color: rgba(155,58,26,0.2); }
+.slot.zone-central { border-color: rgba(201,168,76,0.25); background: rgba(201,168,76,0.02); }
+.slot.drop-target { border-color: var(--gold); border-style: solid; background: rgba(201,168,76,0.08); box-shadow: inset 0 0 10px rgba(201,168,76,0.1); }
+.slot.enemy-slot { border-color: rgba(192,57,43,0.15); }
+.slot-empty { font-size: 0.55rem; color: rgba(201,168,76,0.15); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Cinzel', serif; }
+
+/* ZONE CONTROL INDICATOR */
+.zone-control-bar {
+  height: 3px; margin: 0 0.3rem; border-radius: 2px;
+  background: var(--border); position: relative; overflow: hidden;
+}
+.zone-control-fill {
+  height: 100%; border-radius: 2px; transition: width 0.5s, background 0.3s;
+  position: absolute; left: 0; top: 0;
+}
+
+/* â”€â”€â”€ CARDS ON BOARD â”€â”€â”€ */
+.board-card {
+  position: absolute; inset: 3px;
+  border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.3rem 0.35rem;
+  background: var(--panel2);
+  display: flex; flex-direction: column; gap: 2px;
+  cursor: pointer; transition: all 0.2s; overflow: hidden;
+}
+.board-card:hover { border-color: var(--gold-dim); z-index: 5; }
+.board-card.selected { border-color: var(--gold); box-shadow: 0 0 12px rgba(201,168,76,0.4); z-index: 10; }
+.board-card.enemy-card { background: #1a0f0f; }
+.board-card.type-Santo { border-color: rgba(201,168,76,0.5); }
+.board-card.type-Monumento { border-color: rgba(45,106,45,0.5); }
+.board-card.type-Heresia { border-color: rgba(107,26,26,0.4); }
+.board-card.exhausted { opacity: 0.6; }
+.bc-name { font-family: 'Cinzel', serif; font-size: 0.52rem; color: var(--gold); line-height: 1.2; }
+.bc-type { font-size: 0.45rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.bc-stats { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 1px; }
+.bc-stat { font-size: 0.45rem; padding: 1px 3px; border-radius: 2px; font-family: 'Cinzel', serif; }
+.bc-fe { background: rgba(212,168,71,0.2); color: var(--fÃ©-color); }
+.bc-fraq { background: rgba(192,57,43,0.2); color: var(--fraq-color); }
+.bc-relic { background: rgba(155,120,50,0.2); color: #c8a050; }
+.bc-effect { font-size: 0.42rem; color: var(--text-dim); line-height: 1.3; margin-top: 2px; font-style: italic; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* â”€â”€â”€ HAND â”€â”€â”€ */
+.hand-area {
+  flex-shrink: 0; background: var(--panel); border-top: 1px solid var(--border);
+  padding: 0.4rem 0.8rem; display: flex; gap: 0.4rem; align-items: center;
+  overflow-x: auto; min-height: 120px;
+}
+.hand-label { font-family: 'Cinzel', serif; font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.1em; writing-mode: vertical-rl; transform: rotate(180deg); flex-shrink: 0; }
+
+.hand-card {
+  flex-shrink: 0; width: 80px; height: 105px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--panel2); padding: 0.4rem 0.35rem;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.hand-card:hover { transform: translateY(-8px); border-color: var(--gold-dim); z-index: 5; }
+.hand-card.selected { transform: translateY(-12px); border-color: var(--gold); box-shadow: 0 0 15px rgba(201,168,76,0.5); z-index: 10; }
+.hand-card.unplayable { opacity: 0.4; cursor: not-allowed; }
+.hand-card.unplayable:hover { transform: none; }
+.hc-cost {
+  position: absolute; top: 3px; right: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--sab-color); color: var(--dark);
+  font-family: 'Cinzel', serif; font-size: 0.55rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.hc-name { font-family: 'Cinzel', serif; font-size: 0.55rem; color: var(--gold); line-height: 1.2; padding-right: 18px; }
+.hc-type { font-size: 0.45rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.hc-stats { display: flex; gap: 2px; flex-wrap: wrap; }
+.hc-stat { font-size: 0.45rem; padding: 1px 3px; border-radius: 2px; font-family: 'Cinzel', serif; }
+.hc-fe { background: rgba(212,168,71,0.2); color: var(--fÃ©-color); }
+.hc-fraq { background: rgba(192,57,43,0.2); color: var(--fraq-color); }
+.hc-effect { font-size: 0.42rem; color: var(--text-dim); line-height: 1.3; font-style: italic; overflow: hidden; flex: 1; }
+.hc-req { font-size: 0.4rem; color: var(--jo); margin-top: 2px; }
+.hand-card.type-Santo { border-color: rgba(201,168,76,0.4); }
+.hand-card.type-Monumento { border-color: rgba(45,106,45,0.3); }
+.hand-card.type-Milagre { border-color: rgba(45,106,45,0.3); }
+.hand-card.type-Heresia { border-color: rgba(107,26,26,0.3); }
+.hand-card.type-RelÃ­quia { border-color: rgba(155,120,50,0.3); }
+
+/* â”€â”€â”€ INFO PANEL â”€â”€â”€ */
+.info-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 260px;
+  background: var(--panel); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 0.8rem;
+  transform: translateX(100%); transition: transform 0.3s; z-index: 100;
+  overflow-y: auto;
+}
+.info-panel.open { transform: translateX(0); }
+.info-close { align-self: flex-end; background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 1.2rem; margin-bottom: 0.5rem; }
+.info-card-name { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); margin-bottom: 0.2rem; }
+.info-card-type { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
+.info-section { margin-bottom: 0.6rem; }
+.info-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+.info-value { font-size: 0.9rem; color: var(--text); line-height: 1.5; }
+.info-stat-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+
+/* â”€â”€â”€ LOG â”€â”€â”€ */
+.log-panel {
+  position: fixed; left: 0; bottom: 120px; width: 220px;
+  background: rgba(14,12,9,0.95); border: 1px solid var(--border);
+  border-radius: 0 6px 0 0; padding: 0.5rem; z-index: 50;
+  max-height: 200px; overflow-y: auto;
+}
+.log-title { font-family: 'Cinzel', serif; font-size: 0.6rem; color: var(--gold-dim); letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+.log-entry { font-size: 0.65rem; color: var(--text-dim); line-height: 1.4; padding: 0.1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.log-entry.good { color: #6aaa6a; }
+.log-entry.bad { color: #aa6a6a; }
+.log-entry.info { color: var(--gold-dim); }
+
+/* â”€â”€â”€ MODAL â”€â”€â”€ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--panel); border: 1px solid var(--gold);
+  padding: 2rem; max-width: 400px; width: 90%; text-align: center;
+  position: relative;
+}
+.modal h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 0.5rem; }
+.modal p { color: var(--text-dim); margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.5; }
+.modal-btns { display: flex; gap: 1rem; justify-content: center; }
+
+/* zone select modal */
+.slot-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 1rem 0; }
+.slot-select-btn {
+  padding: 0.5rem; border: 1px solid var(--border); background: var(--panel2);
+  color: var(--text); font-family: 'Cinzel', serif; font-size: 0.75rem;
+  cursor: pointer; transition: all 0.2s; border-radius: 3px;
+}
+.slot-select-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.slot-select-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* â”€â”€â”€ ZONE STATS BAR â”€â”€â”€ */
+.zone-stats-row {
+  display: flex; gap: 0.4rem; padding: 0.2rem 0.8rem;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.zone-stat-block {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  font-size: 0.6rem; gap: 1px;
+}
+.zone-stat-name { font-family: 'Cinzel', serif; color: var(--text-dim); letter-spacing: 0.08em; }
+.zone-stat-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; position: relative; overflow: hidden; }
+.zone-stat-fill { height: 100%; border-radius: 2px; position: absolute; transition: all 0.5s; }
+.zone-stat-nums { display: flex; justify-content: space-between; width: 100%; color: var(--text-dim); }
+.zone-stat-nums .my { color: var(--aq); }
+.zone-stat-nums .en { color: var(--jo); }
+.zone-controlled { font-size: 0.5rem; letter-spacing: 0.05em; font-family: 'Cinzel', serif; }
+
+/* â”€â”€â”€ TOAST â”€â”€â”€ */
+.toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: var(--panel); border: 1px solid var(--gold);
+  padding: 0.5rem 1.5rem; font-family: 'Cinzel', serif; font-size: 0.8rem;
+  color: var(--gold); z-index: 300; opacity: 0; transition: opacity 0.3s;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* â”€â”€â”€ EFFECT HIGHLIGHT â”€â”€â”€ */
+@keyframes cardGlow {
+  0% { box-shadow: 0 0 0 rgba(201,168,76,0); }
+  50% { box-shadow: 0 0 20px rgba(201,168,76,0.7); }
+  100% { box-shadow: 0 0 0 rgba(201,168,76,0); }
+}
+.card-glow { animation: cardGlow 0.6s ease; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- â•â•â•â•â•â•â•â•â•â• TITLE â•â•â•â•â•â•â•â•â•â• -->
+<div id="screen-title" class="screen">
+  <div class="title-cross">âœ¦</div>
+  <div>
+    <div class="title-main">KHRISTÃ“S</div>
+    <div class="title-sub">Disputa de InfluÃªncia Espiritual</div>
+  </div>
+  <div class="title-rule"></div>
+  <div style="text-align:center; color:var(--text-dim); font-size:0.9rem; max-width:340px; line-height:1.6;">
+    Domine regiÃµes, construa Monumentos, expanda sua FÃ©.<br>Primeiro a 50 FÃ© vence.
+  </div>
+  <button class="btn-primary" onclick="showScreen('deckselect')">Iniciar Partida</button>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â• DECK SELECT â•â•â•â•â•â•â•â•â•â• -->
+<div id="screen-deckselect" class="screen hidden">
+  <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:center">
+    <div class="deck-select-title">
+      Escolha seu Deck
+      <small>Escolha sua doutrina. Defina sua estratÃ©gia.</small>
+    </div>
+    <div class="decks-row">
+      <div class="deck-card aq" onclick="startGame('aq')">
+        <div class="deck-card-name">SÃ£o TomÃ¡s de Aquino</div>
+        <div class="deck-card-style">Controle Â· Progressivo Â· Anti-Heresia</div>
+        <div class="deck-card-desc">Construa um engine sÃ³lido de Monumentos, mantenha Fraqueza baixa e domine o tabuleiro com metodicidade teolÃ³gica.</div>
+        <div class="deck-card-stats">
+          <div class="dstat">Custo: <span>7</span></div>
+          <div class="dstat">FÃ©: <span>8</span></div>
+          <div class="dstat">Fraqueza: <span>1</span></div>
+        </div>
+      </div>
+      <div class="deck-card jo" onclick="startGame('jo')">
+        <div class="deck-card-name">Joana D'Arc</div>
+        <div class="deck-card-style">Aggro Â· Rush Â· DomÃ­nio Regional</div>
+        <div class="deck-card-desc">Tome zonas de assalto, gere FÃ© explosiva e pressione o oponente antes que ele construa seu engine.</div>
+        <div class="deck-card-stats">
+          <div class="dstat">Custo: <span>4</span></div>
+          <div class="dstat">FÃ©: <span>6</span></div>
+          <div class="dstat">Fraqueza: <span>7</span></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('title')">â† Voltar</button>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â•â•â•â• GAME â•â•â•â•â•â•â•â•â•â• -->
+<div id="screen-game" class="screen hidden" style="flex-direction:column">
+
+  <!-- HUD -->
+  <div class="hud-top">
+    <div class="hud-player">
+      <div class="player-name" id="hud-my-name">â€”</div>
+      <div class="res-pills">
+        <div class="res-pill pill-fe" id="hud-my-fe">FÃ© 0</div>
+        <div class="res-pill pill-sab" id="hud-my-sab">Sab 1</div>
+        <div class="res-pill pill-fraq" id="hud-my-fraq">Frq 0</div>
+      </div>
+    </div>
+    <div class="hud-center">
+      <div class="turn-info" id="hud-turn">Turno 1 Â· Sua vez</div>
+      <button class="btn-end-turn" id="btn-end-turn" onclick="endTurn()">Encerrar Turno â–¸</button>
+    </div>
+    <div class="hud-player enemy">
+      <div class="player-name" id="hud-en-name">â€”</div>
+      <div class="res-pills">
+        <div class="res-pill pill-fe" id="hud-en-fe">FÃ© 0</div>
+        <div class="res-pill pill-sab" id="hud-en-sab">Sab 1</div>
+        <div class="res-pill pill-fraq" id="hud-en-fraq">Frq 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE BARS -->
+  <div class="zone-stats-row" id="zone-stats-row"></div>
+
+  <!-- BOARD -->
+  <div class="board-area">
+    <div class="board-table" id="board-table"></div>
+  </div>
+
+  <!-- HAND -->
+  <div class="hand-area" id="hand-area">
+    <div class="hand-label">Sua MÃ£o</div>
+  </div>
+</div>
+
+<!-- INFO PANEL -->
+<div class="info-panel" id="info-panel">
+  <button class="info-close" onclick="closeInfo()">âœ•</button>
+  <div id="info-content"></div>
+</div>
+
+<!-- LOG -->
+<div class="log-panel" id="log-panel">
+  <div class="log-title">âœ¦ REGISTRO</div>
+  <div id="log-entries"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <h2 id="modal-title">â€”</h2>
+    <p id="modal-body">â€”</p>
+    <div class="modal-btns" id="modal-btns"></div>
+  </div>
+</div>
+
+<script>
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  DATA  (carregado de cards.json via fetch)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+let CARD_DEFS = {};
+let DECK_LISTS = {};
+let _dataLoaded = false;
+
+//  GAME STATE
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+let G = null;
+
+// Board layout: 3 zones. Zones 0,2 have 4 slots each, zone 1 (central) has 2 slots.
+// Each slot: { zoneIdx, slotIdx, owner:'me'|'enemy', card: null | boardCardObj }
+// boardCard: { instanceId, defId, fe, fraq, relics:[], silenced:0, fraqdrain:0, immuneFragTurns:0, estandarteTurns:0 }
+
+function newGame(playerDeck) {
+  const enemyDeck = playerDeck === 'aq' ? 'jo' : 'aq';
+  const pid = (d) => DECK_LISTS[d].map((id,i) => ({instanceId: d+'_'+i, defId:id}));
+
+  G = {
+    turn: 1,
+    phase: 'my', // 'my' | 'enemy'
+    playerDeck,
+    enemyDeck,
+    me: {
+      fe: 0, sab: 0, fraq: 0,
+      deck: shuffle(pid(playerDeck)),
+      hand: [],
+      heresiasThisTurn: 0,
+      hasSantoInPlay: false,
+      simoniaActive: false, // pending simonia
+      pendingSimoniaCost: 0,
+    },
+    enemy: {
+      fe: 0, sab: 0, fraq: 0,
+      deck: shuffle(pid(enemyDeck)),
+      hand: [],
+      heresiasThisTurn: 0,
+      hasSantoInPlay: false,
+    },
+    // slots[zoneIdx][ownerIdx][slotIdx] where ownerIdx 0=me, 1=enemy
+    slots: buildSlots(),
+    zones: [ // 3 zones
+      { myFe:0, enFe:0, controller: null }, // zone 0 (Zona 1)
+      { myFe:0, enFe:0, controller: null }, // zone 1 (Central)
+      { myFe:0, enFe:0, controller: null }, // zone 2 (Zona 3)
+    ],
+    selectedHandCard: null,
+    selectedBoardCard: null,
+    log: [],
+    instanceCounter: 0,
+    revealedEnemyFragTurns: 0, // turns left showing enemy fraq
+    simoniaNextTurn: false,
+    pendingEvolution: null,
+  };
+
+  // Draw initial hands
+  for(let i=0;i<4;i++) drawCard(G.me);
+  for(let i=0;i<4;i++) drawCard(G.enemy);
+
+  addLog('Partida iniciada! VocÃª joga com ' + deckLabel(playerDeck) + '.', 'info');
+  addLog('Objetivo: acumular 50 FÃ© antes do oponente.', 'info');
+}
+
+function buildSlots() {
+  // slots[zone][owner][slot]
+  // zone 0: 4 slots each, zone 1: 2 slots each, zone 2: 4 slots each
+  const sizes = [4, 2, 4];
+  return sizes.map(sz => [
+    Array.from({length:sz}, () => ({card:null})),
+    Array.from({length:sz}, () => ({card:null}))
+  ]);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function drawCard(player) {
+  if(player.deck.length === 0) return;
+  const card = player.deck.pop();
+  player.hand.push(card);
+}
+
+function deckLabel(d) {
+  return d === 'aq' ? 'SÃ£o TomÃ¡s de Aquino' : 'Joana D\'Arc';
+}
+
+function cardDef(instanceId) {
+  // find by instance
+  const all = [...G.me.hand, ...G.enemy.hand];
+  for(const c of all) if(c.instanceId === instanceId) return CARD_DEFS[c.defId];
+  // check board
+  for(let z=0;z<3;z++) for(let o=0;o<2;o++) for(let s of G.slots[z][o]) {
+    if(s.card && s.card.instanceId === instanceId) return CARD_DEFS[s.card.defId];
+  }
+  return null;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  BOARD LOGIC
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function getBoardCard(zoneIdx, ownerIdx, slotIdx) {
+  return G.slots[zoneIdx][ownerIdx][slotIdx].card;
+}
+
+function getZoneCards(zoneIdx, ownerIdx) {
+  return G.slots[zoneIdx][ownerIdx].map(s=>s.card).filter(Boolean);
+}
+
+function getAllMyCards() {
+  const cards = [];
+  for(let z=0;z<3;z++) for(let s of G.slots[z][0]) if(s.card) cards.push({card:s.card, z});
+  return cards;
+}
+
+function getAllEnemyCards() {
+  const cards = [];
+  for(let z=0;z<3;z++) for(let s of G.slots[z][1]) if(s.card) cards.push({card:s.card, z});
+  return cards;
+}
+
+function getFreeSlot(zoneIdx, ownerIdx) {
+  const slots = G.slots[zoneIdx][ownerIdx];
+  return slots.findIndex(s => s.card === null);
+}
+
+function getDomination() {
+  // returns for each zone who dominates: 'me', 'enemy', null
+  return G.zones.map((z,i) => {
+    const myFe = calcZoneFe(i, 0);
+    const enFe = calcZoneFe(i, 1);
+    // Check auto_dominio (Joana passive)
+    const joanaZone = findCardInZone('jo_santo', i, 1);
+    if (joanaZone && G.enemyDeck === 'jo') return 'enemy';
+    const joanaMyZone = findCardInZone('jo_santo', i, 0);
+    if (joanaMyZone && G.playerDeck === 'jo') return 'me';
+    if (myFe > enFe) return 'me';
+    if (enFe > myFe) return 'enemy';
+    return null;
+  });
+}
+
+function findCardInZone(defId, zoneIdx, ownerIdx) {
+  return G.slots[zoneIdx][ownerIdx].some(s => s.card && s.card.defId === defId);
+}
+
+function calcZoneFe(zoneIdx, ownerIdx) {
+  let fe = 0;
+  for(const s of G.slots[zoneIdx][ownerIdx]) {
+    if(!s.card) continue;
+    const def = CARD_DEFS[s.card.defId];
+    let cardFe = s.card.fe;
+    // relic bonuses
+    for(const rel of s.card.relics) {
+      const rdef = CARD_DEFS[rel];
+      if(rdef.id === 'icone') cardFe += 1;
+      if(rdef.id === 'relicario') cardFe += 2;
+      if(rdef.id === 'calice') cardFe += 1;
+      if(rdef.id === 'armadura') cardFe += 3;
+      if(rdef.id === 'cruz') cardFe += 2;
+      if(rdef.id === 'estandarte' && s.card.estandarteTurns > 0) cardFe *= 2;
+    }
+    // Eremita alone bonus
+    if(def.id === 'eremita') {
+      const others = G.slots[zoneIdx][ownerIdx].filter(sl=>sl.card && sl.card.instanceId !== s.card.instanceId);
+      if(others.length === 0) cardFe += 2;
+    }
+    // adjacency bonuses
+    cardFe += getAdjacencyBonus(zoneIdx, ownerIdx, s.card);
+    // silenced
+    if(s.card.silenced > 0) cardFe = 0;
+    fe += cardFe;
+  }
+  return Math.max(0, fe);
+}
+
+function getAdjacencyBonus(zoneIdx, ownerIdx, card) {
+  let bonus = 0;
+  const def = CARD_DEFS[card.defId];
+  const slotIdx = G.slots[zoneIdx][ownerIdx].findIndex(s=>s.card && s.card.instanceId === card.instanceId);
+  const neighbors = [];
+  if(slotIdx > 0 && G.slots[zoneIdx][ownerIdx][slotIdx-1].card) neighbors.push(G.slots[zoneIdx][ownerIdx][slotIdx-1].card);
+  if(slotIdx < G.slots[zoneIdx][ownerIdx].length-1 && G.slots[zoneIdx][ownerIdx][slotIdx+1].card) neighbors.push(G.slots[zoneIdx][ownerIdx][slotIdx+1].card);
+
+  // Basilica: +1 FÃ© for adjacent units
+  if(def.type === 'Unidade' || def.type === 'Santo') {
+    for(const nb of neighbors) {
+      if(nb.defId === 'basilica') bonus += 1;
+      if(nb.defId === 'mosteiro' && (def.id==='monge'||def.id==='frei')) bonus += 2;
+      if(nb.defId === 'praca') bonus += 1;
+    }
+  }
+  // Escudeiro adj to Santo
+  if(def.id === 'escudeiro') {
+    for(const nb of neighbors) {
+      if(CARD_DEFS[nb.defId].type==='Santo') bonus += (nb.defId==='jo_santo'?2:1);
+    }
+  }
+  // Padre adj to monumento
+  if(def.id==='padre') {
+    for(const nb of neighbors) {
+      if(CARD_DEFS[nb.defId].type==='Monumento') bonus += 1;
+    }
+  }
+  // Icone adjacency
+  for(const nb of neighbors) {
+    if(nb.relics && nb.relics.includes('icone')) bonus += 1;
+  }
+  return bonus;
+}
+
+function getMyDominatedCount() {
+  return getDomination().filter(d=>d==='me').length;
+}
+
+function iZoneDominated(zoneIdx) {
+  return getDomination()[zoneIdx] === 'me';
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  TURN LOGIC
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function startMyTurn() {
+  G.phase = 'my';
+  G.me.heresiasThisTurn = 0;
+  G.me.sab = G.turn; // Sabedoria = nÃºmero do turno, renova sempre
+
+  // Simonia: if active from last turn
+  if(G.simoniaNextTurn) {
+    // enemy must pay 2 sab or lose fe
+    const maxFraq = getAllEnemyCards().reduce((mx,{card})=>Math.max(mx, card.fraq),0);
+    G.enemy.sab -= 2;
+    if(G.enemy.sab < 0) {
+      const drain = maxFraq || 2;
+      G.enemy.fe = Math.max(0, G.enemy.fe - drain);
+      G.enemy.sab = 0;
+      addLog(`Simonia: inimigo nÃ£o pÃ´de pagar, perdeu ${drain} FÃ©.`, 'good');
+    } else {
+      addLog(`Simonia: inimigo pagou 2 Sabedoria.`, 'info');
+    }
+    G.simoniaNextTurn = false;
+  }
+
+  drawCard(G.me);
+  updateHud();
+  addLog(`â€” Turno ${G.turn} â€” Sua vez. +1 Sabedoria, comprou 1 carta.`, 'info');
+  document.getElementById('btn-end-turn').disabled = false;
+  renderHand();
+  renderBoard();
+}
+
+function endTurn() {
+  document.getElementById('btn-end-turn').disabled = true;
+  G.selectedHandCard = null;
+  G.selectedBoardCard = null;
+
+  // Resolve zones
+  resolveZones();
+
+  // Scriptorium bonus sab
+  for(const {card} of getAllMyCards()) {
+    if(card.defId === 'scriptorium') G.me.sab += 1;
+  }
+
+  // Decrement timers
+  for(const {card} of [...getAllMyCards(),...getAllEnemyCards()]) {
+    if(card.silenced > 0) card.silenced--;
+    if(card.immuneFragTurns > 0) card.immuneFragTurns--;
+    if(card.estandarteTurns > 0) card.estandarteTurns--;
+    if(card.fraqdrain > 0) card.fraqdrain--;
+  }
+  if(G.revealedEnemyFragTurns > 0) G.revealedEnemyFragTurns--;
+
+  // Check win
+  if(checkWin()) return;
+
+  // Enemy turn
+  setTimeout(()=>enemyTurn(), 800);
+}
+
+function resolveZones() {
+  for(let z=0;z<3;z++) {
+    const myFe = calcZoneFe(z,0);
+    const enFe = calcZoneFe(z,1);
+    const diff = myFe - enFe;
+    if(diff > 0) {
+      G.me.fe += diff;
+      addLog(`Zona ${z+1}: vocÃª +${diff} FÃ© (${myFe} Ã— ${enFe})`, 'good');
+    } else if(diff < 0) {
+      G.enemy.fe += Math.abs(diff);
+      addLog(`Zona ${z+1}: inimigo +${Math.abs(diff)} FÃ© (${enFe} Ã— ${myFe})`, 'bad');
+    } else {
+      addLog(`Zona ${z+1}: empate (${myFe} Ã— ${enFe})`, 'info');
+    }
+    G.zones[z].myFe = myFe;
+    G.zones[z].enFe = enFe;
+    G.zones[z].controller = getDomination()[z];
+  }
+  updateHud();
+  renderZoneStats();
+}
+
+function checkWin() {
+  if(G.me.fe >= 50) { showWin('VocÃª venceu!', 'VocÃª acumulou 50 FÃ©!'); return true; }
+  if(G.enemy.fe >= 50) { showWin('VocÃª perdeu!', 'O inimigo acumulou 50 FÃ©.'); return true; }
+  return false;
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  ENEMY AI (simple heuristic)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function enemyTurn() {
+  G.phase = 'enemy';
+  G.enemy.heresiasThisTurn = 0;
+  drawCard(G.enemy);
+  G.turn++;
+  G.enemy.sab = G.turn; // Sabedoria = nÃºmero do turno, renova sempre
+  addLog(`â€” Turno ${G.turn} â€” Vez do inimigo.`, 'info');
+  updateHud();
+
+  setTimeout(()=>{
+    // AI: play cheap cards first, prefer units then monuments
+    const playable = G.enemy.hand.filter(c => {
+      const def = CARD_DEFS[c.defId];
+      return def.cost <= G.enemy.sab;
+    });
+    // Sort by cost desc to play best first
+    playable.sort((a,b)=> CARD_DEFS[b.defId].cost - CARD_DEFS[a.defId].cost);
+
+    let played = 0;
+    for(const card of playable) {
+      if(played >= 3) break;
+      const def = CARD_DEFS[card.defId];
+      if(def.cost > G.enemy.sab) continue;
+      // find zone and slot
+      let placed = false;
+      for(let z=0;z<3;z++) {
+        const slot = getFreeSlot(z,1);
+        if(slot === -1) continue;
+        // Milagres/Heresias need enemy dominio
+        if((def.type==='Milagre'||def.type==='Heresia') && def.requiresDominio) {
+          if(getDomination()[z] !== 'enemy') continue;
+        }
+        // Relics - equip to a card
+        if(def.type === 'RelÃ­quia') {
+          placed = enemyPlayRelic(card, def, z);
+          if(placed) break; else continue;
+        }
+        enemyPlaceCard(card, def, z, slot);
+        placed = true;
+        played++;
+        break;
+      }
+    }
+
+    // Use actives: Vigaria
+    for(let z=0;z<3;z++) {
+      if(getDomination()[z]!=='enemy') continue;
+      for(const s of G.slots[z][1]) {
+        if(!s.card) continue;
+        const def = CARD_DEFS[s.card.defId];
+        if(def.id==='vigaria') {
+          // increase fraq of weakest enemy unit
+          const targets = getAllMyCards().filter(({card})=>CARD_DEFS[card.defId].type==='Unidade');
+          if(targets.length) {
+            targets[0].card.fraq = Math.min(10, targets[0].card.fraq + 2);
+            addLog(`VigÃ¡ria inimiga: +2 Fraqueza em ${CARD_DEFS[targets[0].card.defId].name}.`, 'bad');
+          }
+        }
+      }
+    }
+
+    resolveZones();
+    if(checkWin()) return;
+
+    G.turn++;
+    setTimeout(()=>startMyTurn(), 500);
+    renderBoard();
+    renderHand();
+  }, 600);
+}
+
+function enemyPlaceCard(card, def, zoneIdx, slotIdx) {
+  G.enemy.sab -= def.cost;
+  G.enemy.hand = G.enemy.hand.filter(c=>c.instanceId !== card.instanceId);
+  const bc = makeBoardCard(card, def);
+  G.slots[zoneIdx][1][slotIdx].card = bc;
+  applyOnEnter(bc, def, zoneIdx, 1);
+  addLog(`Inimigo jogou ${def.name} na Zona ${zoneIdx+1}.`, 'bad');
+}
+
+function enemyPlayRelic(card, def, zoneIdx) {
+  const targets = G.slots[zoneIdx][1].filter(s => {
+    if(!s.card) return false;
+    const tdef = CARD_DEFS[s.card.defId];
+    if(def.equipTarget === 'any') return s.card.relics.length < CARD_DEFS[s.card.defId].slots;
+    if(def.equipTarget === 'Unidade') return tdef.type==='Unidade' && s.card.relics.length < tdef.slots;
+    if(def.equipTarget === 'Monumento') return tdef.type==='Monumento' && s.card.relics.length < tdef.slots;
+    if(def.equipTarget === 'Santo') return tdef.type==='Santo' && s.card.relics.length < tdef.slots;
+    if(tdef.id === def.equipTarget) return s.card.relics.length < tdef.slots;
+    return false;
+  });
+  if(!targets.length) return false;
+  const target = targets[0];
+  G.enemy.sab -= def.cost;
+  G.enemy.hand = G.enemy.hand.filter(c=>c.instanceId !== card.instanceId);
+  target.card.relics.push(def.id);
+  addLog(`Inimigo equipou ${def.name} em ${CARD_DEFS[target.card.defId].name}.`, 'bad');
+  return true;
+}
+
+function makeBoardCard(card, def) {
+  return {
+    instanceId: card.instanceId,
+    defId: card.defId,
+    fe: def.fe,
+    fraq: def.fraq,
+    relics: [],
+    silenced: 0,
+    immuneFragTurns: 0,
+    estandarteTurns: 0,
+  };
+}
+
+function applyOnEnter(bc, def, zoneIdx, ownerIdx) {
+  const player = ownerIdx===0 ? G.me : G.enemy;
+  const other = ownerIdx===0 ? G.enemy : G.me;
+  if(def.onEnter === 'draw_1') drawCard(player);
+  if(def.onEnter === 'plus3_fe_zone') player.fe += 3;
+  if(def.onEnter === 'plus2_fe_zone') player.fe += 2;
+  if(def.onEnter === 'plus2_fe_if_dominio') {
+    if(getDomination()[zoneIdx] === (ownerIdx===0?'me':'enemy')) player.fe += 2;
+  }
+  if(def.onEnter === 'plus3_fe_if_enemy_zone') {
+    // if played in zone where enemy has more cards
+    const enemyCards = getZoneCards(zoneIdx, 1-ownerIdx).length;
+    if(enemyCards > 0) player.fe += 3;
+  }
+  if(def.onEnter === 'cancel_heresia_zone') {
+    // cancel silenced cards in zone
+    for(const s of G.slots[zoneIdx][1-ownerIdx]) {
+      if(s.card && s.card.silenced > 0) { s.card.silenced = 0; addLog(`Bispo cancelou uma Heresia ativa.`,'good'); }
+    }
+  }
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  PLAYING CARDS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+let pendingCardPlay = null; // {instanceId, defId}
+let pendingZoneSelect = null; // callback(zoneIdx, slotIdx)
+
+function selectHandCard(instanceId) {
+  if(G.phase !== 'my') return;
+  const handCard = G.me.hand.find(c=>c.instanceId===instanceId);
+  if(!handCard) return;
+  const def = CARD_DEFS[handCard.defId];
+
+  if(G.me.sab < def.cost) { showToast('Sabedoria insuficiente!'); return; }
+
+  if(G.selectedHandCard === instanceId) {
+    G.selectedHandCard = null;
+    renderHand();
+    return;
+  }
+  G.selectedHandCard = instanceId;
+  G.selectedBoardCard = null;
+  renderHand();
+  showInfo(def, null);
+
+  // Prompt zone selection
+  pendingCardPlay = handCard;
+  openZoneSelectModal(def);
+}
+
+function openZoneSelectModal(def) {
+  const dom = getDomination();
+  const isRelic = def.type === 'RelÃ­quia';
+  const needsDominio = def.requiresDominio;
+  const needs2Zones = def.requires2Zones;
+
+  if(isRelic) {
+    // Need to select a target card on board
+    openRelicTargetModal(def);
+    return;
+  }
+
+  // Build slot grid
+  let html = `<h2 id="modal-title" style="font-size:1rem;margin-bottom:.5rem">${def.name}</h2>`;
+  html += `<p style="font-size:0.8rem;color:var(--text-dim)">${def.effect}</p>`;
+  html += `<div style="margin:1rem 0;font-family:'Cinzel',serif;font-size:0.75rem;color:var(--text-dim)">Escolha a zona:</div>`;
+  html += `<div class="slot-select-grid">`;
+
+  const zoneNames = ['Zona 1','Central','Zona 3'];
+  for(let z=0;z<3;z++) {
+    const myFe = calcZoneFe(z,0);
+    const enFe = calcZoneFe(z,1);
+    const dominated = dom[z]==='me';
+    const freeSlot = getFreeSlot(z,0);
+    const hasSlot = freeSlot !== -1;
+
+    let disabled = false;
+    let reason = '';
+    if(needsDominio && !dominated) { disabled=true; reason='Requer domÃ­nio'; }
+    if(needs2Zones && getMyDominatedCount()<2) { disabled=true; reason='Requer 2 zonas'; }
+    if((def.type==='Unidade'||def.type==='Santo'||def.type==='Monumento') && !hasSlot) { disabled=true; reason='Zona cheia'; }
+    if(def.type==='Milagre'||def.type==='Heresia') {
+      // spells don't need a slot, just domination
+    } else if(!hasSlot && def.type !== 'Milagre' && def.type !== 'Heresia') {
+      disabled = true; reason = 'Zona cheia';
+    }
+
+    html += `<button class="slot-select-btn" ${disabled?'disabled':''} onclick="playCardToZone(${z})">${zoneNames[z]}<br><span style="font-size:0.6rem;opacity:0.6">${myFe}FÃ© vs ${enFe}FÃ©</span>${dominated?'<br><span style="font-size:0.55rem;color:var(--fÃ©-color)">Dominada</span>':''}${reason?`<br><span style="font-size:0.55rem;color:var(--fraq-color)">${reason}</span>`:''}`;
+    html += `</button>`;
+  }
+  html += `</div>`;
+
+  showModal(html, [{label:'Cancelar', fn: ()=>{ G.selectedHandCard=null; pendingCardPlay=null; renderHand(); closeModal(); }}]);
+}
+
+function openRelicTargetModal(def) {
+  let html = `<h2 style="font-size:1rem;margin-bottom:.5rem">${def.name}</h2>`;
+  html += `<p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem">${def.effect}</p>`;
+  html += `<div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Escolha o alvo:</div>`;
+
+  const validTargets = [];
+  for(let z=0;z<3;z++) for(let si=0;si<G.slots[z][0].length;si++) {
+    const s = G.slots[z][0][si];
+    if(!s.card) continue;
+    const tdef = CARD_DEFS[s.card.defId];
+    if(s.card.relics.length >= tdef.slots) continue;
+    let valid = false;
+    if(def.equipTarget === 'any') valid = true;
+    if(def.equipTarget === 'Unidade' && tdef.type==='Unidade') valid = true;
+    if(def.equipTarget === 'Monumento' && tdef.type==='Monumento') valid = true;
+    if(def.equipTarget === 'Santo' && tdef.type==='Santo') valid = true;
+    if(tdef.id === def.equipTarget) valid = true;
+    if(valid) validTargets.push({card:s.card, tdef, z, si});
+  }
+
+  if(!validTargets.length) {
+    showModal(`<h2>Sem alvo vÃ¡lido</h2><p>Nenhuma carta disponÃ­vel para equipar ${def.name}.</p>`,
+      [{label:'OK', fn: ()=>{ G.selectedHandCard=null; pendingCardPlay=null; renderHand(); closeModal(); }}]);
+    return;
+  }
+
+  html += `<div style="display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto">`;
+  validTargets.forEach((t,i) => {
+    html += `<button class="slot-select-btn" onclick="playRelicTo(${i})" style="text-align:left">${t.tdef.name} <span style="opacity:0.6;font-size:0.6rem">Zona ${t.z+1} Â· Slots: ${t.card.relics.length}/${t.tdef.slots}</span></button>`;
+  });
+  html += `</div>`;
+
+  // store targets
+  window._relicTargets = validTargets;
+  showModal(html, [{label:'Cancelar', fn:()=>{ G.selectedHandCard=null; pendingCardPlay=null; renderHand(); closeModal(); }}]);
+}
+
+function playRelicTo(targetIdx) {
+  const target = window._relicTargets[targetIdx];
+  const card = pendingCardPlay;
+  const def = CARD_DEFS[card.defId];
+  G.me.sab -= def.cost;
+  G.me.hand = G.me.hand.filter(c=>c.instanceId !== card.instanceId);
+  target.card.relics.push(def.id);
+
+  // Special relic effects
+  if(def.id==='estandarte') { target.card.estandarteTurns = 2; }
+  if(def.id==='armadura') { target.card.immuneFragTurns = 2; }
+  if(def.id==='manto') { target.card.fraq = Math.max(0, target.card.fraq - 2); }
+
+  addLog(`Equipou ${def.name} em ${CARD_DEFS[target.card.defId].name}.`, 'good');
+  G.selectedHandCard = null; pendingCardPlay = null;
+  closeModal(); renderHand(); renderBoard(); updateHud();
+}
+
+function playCardToZone(zoneIdx) {
+  closeModal();
+  const card = pendingCardPlay;
+  const def = CARD_DEFS[card.defId];
+  const player = G.me;
+
+  if(player.sab < def.cost) { showToast('Sabedoria insuficiente!'); return; }
+
+  // Heresia limit from Confessor
+  if(def.type==='Heresia') {
+    const hasConfessor = getAllEnemyCards().some(({card})=>card.defId==='confessor');
+    if(hasConfessor && G.enemy.heresiasThisTurn >= 1) {
+      showToast('Confessor do Rei bloqueia: sÃ³ 1 Heresia por turno!');
+      G.selectedHandCard=null; pendingCardPlay=null; renderHand(); return;
+    }
+    G.me.heresiasThisTurn++;
+  }
+
+  player.sab -= def.cost;
+  player.hand = player.hand.filter(c=>c.instanceId !== card.instanceId);
+
+  if(def.type==='Milagre' || def.type==='Heresia') {
+    applyInstantEffect(def, zoneIdx, 0);
+  } else {
+    const slotIdx = getFreeSlot(zoneIdx, 0);
+    if(slotIdx === -1) { showToast('Sem slot disponÃ­vel!'); player.sab += def.cost; player.hand.push(card); return; }
+    const bc = makeBoardCard(card, def);
+    G.slots[zoneIdx][0][slotIdx].card = bc;
+    applyOnEnter(bc, def, zoneIdx, 0);
+    // STA passive: reduce fraq on entry if STA active
+    if(getAllMyCards().some(({card})=>card.defId==='sta_santo')) {
+      bc.fraq = Math.max(0, bc.fraq - 2);
+    }
+    addLog(`Jogou ${def.name} na Zona ${zoneIdx+1}.`, 'good');
+  }
+
+  G.selectedHandCard = null; pendingCardPlay = null;
+  updateHud(); renderHand(); renderBoard();
+}
+
+function applyInstantEffect(def, zoneIdx, ownerIdx) {
+  const me = G.me, en = G.enemy;
+
+  // Milagres
+  if(def.id==='vesperas') {
+    for(const s of G.slots[zoneIdx][0]) if(s.card) s.card.fraq = Math.max(0, s.card.fraq-2);
+    drawCard(me); addLog('OraÃ§Ã£o das VÃ©speras: âˆ’2 Fraqueza nas unidades, +1 carta.','good');
+  }
+  if(def.id==='eucaristia') {
+    const hasCalice = getAllMyCards().some(({card})=>card.relics.includes('calice'));
+    if(!hasCalice){ showToast('Requer CÃ¡lice Sagrado!'); me.sab+=def.cost; return; }
+    me.fe+=3; for(const s of G.slots[zoneIdx][0]) if(s.card) s.card.fraq=Math.max(0,s.card.fraq-1);
+    addLog('Eucaristia: +3 FÃ© global, âˆ’1 Fraqueza.','good');
+  }
+  if(def.id==='consagracao') {
+    // Evolve a monument in zone
+    evolveMonumentInZone(zoneIdx, 0);
+  }
+  if(def.id==='revelacao') {
+    drawCard(me); drawCard(me); drawCard(me);
+    const totalFraq = getAllMyCards().reduce((s,{card})=>s+card.fraq,0);
+    if(totalFraq<=3) { me.sab+=2; addLog('RevelaÃ§Ã£o Divina: +3 cartas, +2 Sabedoria (Fraqueza baixa).','good'); }
+    else addLog('RevelaÃ§Ã£o Divina: +3 cartas.','good');
+  }
+  if(def.id==='cura') {
+    const mult = getAllMyCards().some(({card})=>CARD_DEFS[card.defId].type==='Santo') ? 2 : 1;
+    for(const s of G.slots[zoneIdx][0]) if(s.card) s.card.fraq=Math.max(0,s.card.fraq-3*mult);
+    addLog(`Cura Miraculosa: âˆ’${3*mult} Fraqueza na zona.`,'good');
+  }
+  if(def.id==='louvor') { me.fe+=3+1; addLog('Louvor Solene: +3 FÃ© na zona, +1 FÃ© global.','good'); }
+  if(def.id==='cruzada') {
+    for(const s of G.slots[zoneIdx][0]) if(s.card){ s.card.fe+=3; s.card.fraq+=2; }
+    addLog('Cruzada Espiritual: +3 FÃ© temporÃ¡ria, Fraqueza +2.','good');
+  }
+  if(def.id==='batismo') {
+    // evolve catecumeno in zone
+    for(const s of G.slots[zoneIdx][0]) {
+      if(s.card && s.card.defId==='catecumeno') {
+        s.card.defId='frei'; s.card.fe=2; s.card.fraq=3;
+        me.fe+=2; addLog('Batismo: CatecÃºmeno virou Frei Predicante, +2 FÃ©.','good'); break;
+      }
+    }
+  }
+  if(def.id==='pentecoste') {
+    for(const s of G.slots[zoneIdx][0]) if(s.card) s.card.fe+=2;
+    for(const {card} of [...getAllMyCards(),...getAllEnemyCards()]) card.fraq=Math.max(0,card.fraq-2);
+    addLog('Pentecostes: +2 FÃ© em todas as unidades, âˆ’2 Fraqueza global.','good');
+  }
+
+  // Heresias
+  if(def.id==='debate'||def.id==='exposicao_aq'||def.id==='exposicao_jo') {
+    openEnemyTargetModal(def, zoneIdx);
+    return;
+  }
+  if(def.id==='heresia_alb') {
+    // drain a monument
+    for(const s of G.slots[zoneIdx][1]) {
+      if(s.card && CARD_DEFS[s.card.defId].type==='Monumento') {
+        s.card.fe=Math.max(0,s.card.fe-3); en.fraq+=1;
+        addLog('Heresia Albigense: âˆ’3 FÃ© de Monumento inimigo.','good'); break;
+      }
+    }
+  }
+  if(def.id==='iconoclastia') {
+    // destroy a relic
+    for(let ez=0;ez<3;ez++) for(const s of G.slots[ez][1]) {
+      if(s.card && s.card.relics.length) {
+        const relic = s.card.relics.pop();
+        const rcost = CARD_DEFS[relic]?.cost||0;
+        en.fe=Math.max(0,en.fe-rcost);
+        addLog(`Iconoclastia: RelÃ­quia ${relic} destruÃ­da, inimigo âˆ’${rcost} FÃ©.`,'good'); break;
+      }
+    }
+  }
+  if(def.id==='acusacao') {
+    openEnemyTargetModal(def, zoneIdx); return;
+  }
+  if(def.id==='propaganda') {
+    for(const s of G.slots[zoneIdx][1]) if(s.card) s.card.fraq+=1;
+    en.fe=Math.max(0,en.fe-2);
+    addLog('Propaganda PagÃ£: âˆ’2 FÃ© inimiga, +1 Fraqueza em unidades inimigas da zona.','good');
+  }
+  if(def.id==='inquisicao') {
+    const hasBispo = getAllMyCards().some(({card})=>card.defId==='bispo'||card.defId==='cardeal');
+    if(!hasBispo){ showToast('Requer Bispo ou superior!'); me.sab+=def.cost; return; }
+    // cancel silenced
+    for(const s of G.slots[zoneIdx][0]) if(s.card&&s.card.silenced>0){ s.card.silenced=0; me.fraq=Math.max(0,me.fraq-1); }
+    addLog('InquisiÃ§Ã£o: Heresia cancelada, âˆ’1 Fraqueza.','good');
+  }
+  if(def.id==='simonia') {
+    G.simoniaNextTurn=true;
+    addLog('Simonia: inimigo terÃ¡ que pagar +2 Sabedoria no prÃ³ximo turno ou perder FÃ©.','good');
+  }
+  if(def.id==='cisma') {
+    for(let ez=0;ez<3;ez++) {
+      const enFe=calcZoneFe(ez,1);
+      G.zones[ez].enFe=Math.floor(enFe/2);
+    }
+    for(const {card} of getAllEnemyCards()) card.fraq+=2;
+    addLog('Cisma Interno: FÃ© de zona inimiga dividida ao meio. Unidades +2 Fraqueza.','good');
+  }
+  if(def.id==='profanacao') {
+    for(const {card} of getAllEnemyCards()) {
+      if(card.relics.length) {
+        const relic=card.relics.pop();
+        addLog(`ProfanaÃ§Ã£o: RelÃ­quia ${relic} removida, âˆ’2 FÃ© inimiga.`,'good');
+        en.fe=Math.max(0,en.fe-2);
+        for(const {card:ec} of getAllEnemyCards()) ec.fraq+=1;
+        break;
+      }
+    }
+  }
+
+  addLog(`Jogou ${def.name}.`, 'good');
+  updateHud(); renderBoard(); renderHand();
+}
+
+function openEnemyTargetModal(def, zoneIdx) {
+  const targets = G.slots[zoneIdx][1].filter(s=>s.card);
+  if(!targets.length) { showToast('Nenhum alvo na zona!'); G.me.sab+=def.cost; renderHand(); return; }
+  let html = `<h2 style="font-size:1rem;margin-bottom:.5rem">${def.name}</h2>`;
+  html += `<p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem">${def.effect}</p>`;
+  html += `<div style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--text-dim);margin-bottom:0.5rem">Escolha alvo inimigo:</div>`;
+  html += `<div style="display:flex;flex-direction:column;gap:0.4rem">`;
+  targets.forEach((s,i) => {
+    const tdef = CARD_DEFS[s.card.defId];
+    html += `<button class="slot-select-btn" onclick="applyTargetEffect('${def.id}',${i},${zoneIdx})">${tdef.name} <span style="font-size:0.6rem;opacity:0.6">Fraqueza ${s.card.fraq}</span></button>`;
+  });
+  html += `</div>`;
+  window._enemyTargets = targets;
+  showModal(html, [{label:'Cancelar', fn:()=>{ G.me.sab+=def.cost; closeModal(); renderHand(); }}]);
+}
+
+function applyTargetEffect(defId, targetIdx, zoneIdx) {
+  closeModal();
+  const target = window._enemyTargets[targetIdx];
+  const card = target.card;
+  const immune = card.immuneFragTurns > 0;
+
+  if(defId==='exposicao_aq'||defId==='exposicao_jo') {
+    if(immune && !CARD_DEFS[card.defId].passive?.includes('immune')) {
+      showToast('Alvo imune a efeitos de Fraqueza!'); return;
+    }
+    const drain = card.fraq;
+    G.enemy.fe = Math.max(0, G.enemy.fe - drain);
+    addLog(`ExposiÃ§Ã£o de Heresia: inimigo perde ${drain} FÃ© (Fraqueza ${drain}).`, 'good');
+  }
+  if(defId==='debate') {
+    card.silenced = 2;
+    card.fraq += 1;
+    addLog(`Debate FilosÃ³fico: ${CARD_DEFS[card.defId].name} silenciado por 2 rodadas, +1 Fraqueza.`, 'good');
+  }
+  if(defId==='acusacao') {
+    card.silenced = 2;
+    card.fraq += 2;
+    addLog(`AcusaÃ§Ã£o: ${CARD_DEFS[card.defId].name} silenciado, +2 Fraqueza permanente.`, 'good');
+  }
+
+  updateHud(); renderBoard();
+}
+
+function evolveMonumentInZone(zoneIdx, ownerIdx) {
+  const chain = {capela:'igreja', igreja:'basilica', basilica:'catedral'};
+  for(const s of G.slots[zoneIdx][ownerIdx]) {
+    if(!s.card) continue;
+    const next = chain[s.card.defId];
+    if(next) {
+      const nextDef = CARD_DEFS[next];
+      s.card.defId = next;
+      s.card.fe = nextDef.fe;
+      addLog(`ConsagraÃ§Ã£o: ${CARD_DEFS[Object.keys(chain).find(k=>chain[k]===next)].name} evoluiu para ${nextDef.name}!`, 'good');
+      return;
+    }
+  }
+  showToast('Nenhum Monumento para evoluir nessa zona!');
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  RENDER
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function renderBoard() {
+  const table = document.getElementById('board-table');
+  const dom = getDomination();
+  const zoneNames = ['Zona 1', 'Central', 'Zona 3'];
+  const zoneSizes = [4, 2, 4];
+
+  table.innerHTML = '';
+
+  // Top row (enemy), Bottom row (me)
+  for(const rowOwner of [1, 0]) {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+
+    for(let z=0;z<3;z++) {
+      if(z>0) {
+        const div = document.createElement('div');
+        div.className = 'zone-divider';
+        row.appendChild(div);
+      }
+      const group = document.createElement('div');
+      group.className = 'zone-group';
+
+      if(rowOwner===1) {
+        const lbl = document.createElement('div');
+        lbl.className = 'zone-label';
+        const ctrl = dom[z];
+        const color = ctrl==='me'?'var(--aq)':ctrl==='enemy'?'var(--jo)':'var(--text-dim)';
+        lbl.innerHTML = `<span style="color:${color}">${zoneNames[z]}</span>`;
+        group.appendChild(lbl);
+      }
+
+      const slotsRow = document.createElement('div');
+      slotsRow.className = 'slots-row';
+
+      for(let si=0;si<zoneSizes[z];si++) {
+        const slotEl = document.createElement('div');
+        slotEl.className = `slot ${rowOwner===0?'zone-'+[1,'central',3][z]:''} ${rowOwner===1?'enemy-slot':''}`;
+
+        const s = G.slots[z][rowOwner][si];
+        if(s.card) {
+          slotEl.appendChild(renderBoardCard(s.card, rowOwner===0));
+        } else {
+          const empty = document.createElement('div');
+          empty.className = 'slot-empty';
+          empty.textContent = 'âœ¦';
+          slotEl.appendChild(empty);
+        }
+        slotsRow.appendChild(slotEl);
+      }
+      group.appendChild(slotsRow);
+
+      if(rowOwner===0) {
+        const lbl = document.createElement('div');
+        lbl.className = 'zone-label';
+        lbl.textContent = `${calcZoneFe(z,0)}â†‘ vs ${calcZoneFe(z,1)}â†“ FÃ©`;
+        group.appendChild(lbl);
+      }
+
+      row.appendChild(group);
+    }
+    table.appendChild(row);
+  }
+}
+
+function renderBoardCard(bc, isMe) {
+  const def = CARD_DEFS[bc.defId];
+  const el = document.createElement('div');
+  el.className = `board-card type-${def.type} ${!isMe?'enemy-card':''} ${bc.silenced>0?'exhausted':''}`;
+  if(G.selectedBoardCard === bc.instanceId) el.classList.add('selected');
+  el.onclick = () => isMe ? selectBoardCard(bc) : selectEnemyCard(bc);
+
+  const cardFe = bc.fe + bc.relics.reduce((s,r)=>{
+    if(r==='icone')return s+1;
+    if(r==='relicario')return s+2;
+    if(r==='calice')return s+1;
+    if(r==='armadura')return s+3;
+    if(r==='cruz')return s+2;
+    return s;
+  },0) + getAdjacencyBonusForRender(bc);
+
+  el.innerHTML = `
+    <div class="bc-name">${def.name}</div>
+    <div class="bc-type">${def.type} Â· ${def.sub}</div>
+    <div class="bc-stats">
+      ${def.fe>0?`<span class="bc-stat bc-fe">â¬¡${cardFe}FÃ©</span>`:''}
+      ${bc.fraq>0?`<span class="bc-stat bc-fraq">âš¡${bc.fraq}Frq</span>`:''}
+      ${bc.silenced>0?`<span class="bc-stat" style="background:rgba(107,26,26,.3);color:#c06060">âœ—${bc.silenced}</span>`:''}
+      ${bc.relics.length?`<span class="bc-stat bc-relic">âš”${bc.relics.length}</span>`:''}
+    </div>
+    <div class="bc-effect">${def.effect}</div>
+  `;
+  return el;
+}
+
+function getAdjacencyBonusForRender(bc) {
+  // Find zone and slot
+  for(let z=0;z<3;z++) for(let o=0;o<2;o++) {
+    const si = G.slots[z][o].findIndex(s=>s.card&&s.card.instanceId===bc.instanceId);
+    if(si>=0) return getAdjacencyBonus(z, o, bc);
+  }
+  return 0;
+}
+
+function selectBoardCard(bc) {
+  if(G.phase !== 'my') return;
+  if(G.selectedBoardCard === bc.instanceId) {
+    G.selectedBoardCard = null; renderBoard(); return;
+  }
+  G.selectedBoardCard = bc.instanceId;
+  G.selectedHandCard = null;
+  renderBoard(); renderHand();
+  const def = CARD_DEFS[bc.defId];
+  showInfo(def, bc);
+
+  // Offer active ability if has one
+  if(def.active) {
+    offerActiveAbility(bc, def);
+  }
+}
+
+function selectEnemyCard(bc) {
+  const def = CARD_DEFS[bc.defId];
+  showInfo(def, bc, true);
+}
+
+function offerActiveAbility(bc, def) {
+  if(!def.active) return;
+  // Find zone
+  let zoneIdx = -1;
+  for(let z=0;z<3;z++) if(G.slots[z][0].some(s=>s.card&&s.card.instanceId===bc.instanceId)) { zoneIdx=z; break; }
+  const dominated = iZoneDominated(zoneIdx);
+  if(def.active.requiresDominio && !dominated) { showToast('Requer domÃ­nio de zona para usar ativo!'); return; }
+
+  if(def.id==='sta_santo') {
+    // Reduce all unit fraq by 2
+    for(const {card} of getAllMyCards()) {
+      if(CARD_DEFS[card.defId].type==='Unidade') card.fraq=Math.max(0,card.fraq-2);
+    }
+    addLog('STA Ativo: âˆ’2 Fraqueza permanente em todas as unidades aliadas.','good');
+    renderBoard(); updateHud(); return;
+  }
+
+  if(def.active.key==='reveal_fraq') {
+    G.revealedEnemyFragTurns=2;
+    drawCard(G.me);
+    addLog('Inquiridor: Fraqueza inimiga revelada, +1 carta.','good');
+    renderBoard(); renderHand(); return;
+  }
+
+  if(def.active.key==='increase_enemy_fraq') {
+    const targets = getAllEnemyCards().filter(({card})=>CARD_DEFS[card.defId].type==='Unidade'||CARD_DEFS[card.defId].type==='Santo');
+    if(!targets.length) { showToast('Nenhuma unidade inimiga!'); return; }
+    let html=`<h2 style="font-size:1rem;margin-bottom:.5rem">VigÃ¡ria da Cruzada</h2><p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1rem">+2 Fraqueza permanente no alvo</p>`;
+    html+=`<div style="display:flex;flex-direction:column;gap:0.4rem">`;
+    targets.forEach((t,i)=>{
+      const td=CARD_DEFS[t.card.defId];
+      html+=`<button class="slot-select-btn" onclick="applyVigaria(${i})">${td.name} <span style="font-size:0.6rem;opacity:0.6">Fraqueza ${t.card.fraq}</span></button>`;
+    });
+    html+=`</div>`;
+    window._vigariaTargets=targets;
+    showModal(html,[{label:'Cancelar',fn:closeModal}]);
+    return;
+  }
+}
+
+function applyVigaria(idx) {
+  closeModal();
+  const t = window._vigariaTargets[idx];
+  t.card.fraq = Math.min(10, t.card.fraq+2);
+  addLog(`VigÃ¡ria: +2 Fraqueza em ${CARD_DEFS[t.card.defId].name} (agora ${t.card.fraq}).`,'good');
+  renderBoard();
+}
+
+function renderHand() {
+  const area = document.getElementById('hand-area');
+  const label = area.querySelector('.hand-label');
+  area.innerHTML = '';
+  area.appendChild(label||createEl('div','hand-label','Sua MÃ£o'));
+
+  if(G.me.hand.length === 0) {
+    const empty = createEl('div','',`<span style="font-size:0.75rem;color:var(--text-dim);font-style:italic">MÃ£o vazia</span>`);
+    area.appendChild(empty);
+    return;
+  }
+
+  G.me.hand.forEach(hc => {
+    const def = CARD_DEFS[hc.defId];
+    const canPlay = G.me.sab >= def.cost && G.phase === 'my';
+    const el = document.createElement('div');
+    el.className = `hand-card type-${def.type} ${G.selectedHandCard===hc.instanceId?'selected':''} ${!canPlay?'unplayable':''}`;
+    el.onclick = () => canPlay ? selectHandCard(hc.instanceId) : showToast('Sabedoria insuficiente ou nÃ£o Ã© seu turno!');
+
+    let reqText = '';
+    if(def.requiresDominio) reqText += 'âš‘ Zona dominada ';
+    if(def.requires2Zones) reqText += 'âš‘ 2 zonas ';
+    if(def.requiresRelic) reqText += `âš‘ ${def.requiresRelic} `;
+
+    el.innerHTML = `
+      <div class="hc-cost">${def.cost}</div>
+      <div class="hc-name">${def.name}</div>
+      <div class="hc-type">${def.type} Â· ${def.sub}</div>
+      <div class="hc-stats">
+        ${def.fe>0?`<span class="hc-stat hc-fe">FÃ© ${def.fe}</span>`:''}
+        ${def.fraq>0?`<span class="hc-stat hc-fraq">Frq ${def.fraq}</span>`:''}
+      </div>
+      <div class="hc-effect">${def.effect}</div>
+      ${reqText?`<div class="hc-req">${reqText}</div>`:''}
+    `;
+    area.appendChild(el);
+  });
+}
+
+function createEl(tag, cls, inner='') {
+  const el = document.createElement(tag);
+  if(cls) el.className = cls;
+  el.innerHTML = inner;
+  return el;
+}
+
+function renderZoneStats() {
+  const row = document.getElementById('zone-stats-row');
+  const dom = getDomination();
+  const zoneNames = ['Zona 1','Central','Zona 3'];
+  row.innerHTML = '';
+
+  for(let z=0;z<3;z++) {
+    const myFe = calcZoneFe(z,0);
+    const enFe = calcZoneFe(z,1);
+    const total = myFe+enFe||1;
+    const pct = Math.round(myFe/total*100);
+    const ctrl = dom[z];
+    const fillColor = ctrl==='me'?'var(--aq)':ctrl==='enemy'?'var(--jo)':'var(--border)';
+    const ctrlLabel = ctrl==='me'?'Dominada':'';
+
+    const block = document.createElement('div');
+    block.className = 'zone-stat-block';
+    block.innerHTML = `
+      <div class="zone-stat-name">${zoneNames[z]} ${ctrlLabel?`<span style="color:var(--fÃ©-color)">[Dom]</span>`:''}</div>
+      <div class="zone-stat-bar"><div class="zone-stat-fill" style="width:${pct}%;background:${fillColor}"></div></div>
+      <div class="zone-stat-nums"><span class="my">${myFe}FÃ©</span><span class="en">${enFe}FÃ©</span></div>
+    `;
+    row.appendChild(block);
+  }
+}
+
+function updateHud() {
+  document.getElementById('hud-my-name').textContent = deckLabel(G.playerDeck);
+  document.getElementById('hud-en-name').textContent = deckLabel(G.enemyDeck);
+  document.getElementById('hud-my-fe').textContent = `FÃ© ${G.me.fe}`;
+  document.getElementById('hud-my-sab').textContent = `Sab ${G.me.sab}`;
+  document.getElementById('hud-my-fraq').textContent = `Frq ${G.me.fraq}`;
+  document.getElementById('hud-en-fe').textContent = `FÃ© ${G.enemy.fe}`;
+  document.getElementById('hud-en-sab').textContent = `Sab ${G.enemy.sab}`;
+  document.getElementById('hud-en-fraq').textContent = `Frq ${G.enemy.fraq}`;
+  document.getElementById('hud-turn').textContent = `Turno ${G.turn} Â· ${G.phase==='my'?'Sua vez':'Inimigo'}`;
+  renderZoneStats();
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  INFO PANEL
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function showInfo(def, bc, isEnemy=false) {
+  const panel = document.getElementById('info-panel');
+  const content = document.getElementById('info-content');
+
+  const fraqDisplay = bc ? bc.fraq : def.fraq;
+  const feDisplay = bc ? bc.fe : def.fe;
+  const relics = bc ? bc.relics.map(r=>CARD_DEFS[r]?.name||r).join(', ')||'â€”' : 'â€”';
+
+  content.innerHTML = `
+    <div class="info-card-name">${def.name}</div>
+    <div class="info-card-type">${def.type} Â· ${def.sub}${isEnemy?' (Inimigo)':''}</div>
+    <div class="info-stat-row">
+      <div class="res-pill pill-sab">${def.cost} Sab.</div>
+      ${def.fe>0?`<div class="res-pill pill-fe">FÃ© ${feDisplay}</div>`:''}
+      ${def.fraq>0?`<div class="res-pill pill-fraq">Frq ${fraqDisplay}</div>`:''}
+      ${def.slots>0?`<div class="res-pill" style="background:rgba(155,120,50,.15);border:1px solid rgba(155,120,50,.4);color:#c8a050">${def.slots} slot${def.slots>1?'s':''}</div>`:''}
+    </div>
+    <div class="info-section">
+      <div class="info-label">Efeito</div>
+      <div class="info-value">${def.effect}</div>
+    </div>
+    ${bc&&bc.relics.length?`<div class="info-section"><div class="info-label">RelÃ­quias equipadas</div><div class="info-value">${relics}</div></div>`:''}
+    ${bc&&bc.silenced>0?`<div class="info-section"><div class="info-label" style="color:var(--fraq-color)">âš  Silenciado</div><div class="info-value" style="color:var(--fraq-color)">${bc.silenced} rodada(s) restantes</div></div>`:''}
+    ${def.evolvesTo?`<div class="info-section"><div class="info-label">Evolui para</div><div class="info-value">${CARD_DEFS[def.evolvesTo]?.name} (requer domÃ­nio)</div></div>`:''}
+  `;
+
+  panel.classList.add('open');
+}
+
+function closeInfo() {
+  document.getElementById('info-panel').classList.remove('open');
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  LOG
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function addLog(msg, type='') {
+  if(!G) return;
+  G.log.unshift({msg,type});
+  if(G.log.length > 30) G.log.pop();
+  const container = document.getElementById('log-entries');
+  container.innerHTML = G.log.slice(0,20).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  MODAL
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function showModal(html, btns=[]) {
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById('modal');
+  modal.innerHTML = html;
+  const btnRow = document.createElement('div');
+  btnRow.className = 'modal-btns';
+  btns.forEach(b=>{
+    const btn = document.createElement('button');
+    btn.className = 'btn-primary';
+    btn.textContent = b.label;
+    btn.onclick = b.fn;
+    btnRow.appendChild(btn);
+  });
+  modal.appendChild(btnRow);
+  overlay.classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function showWin(title, body) {
+  showModal(`
+    <div class="title-cross" style="font-size:2rem;margin-bottom:1rem">âœ¦</div>
+    <h2>${title}</h2>
+    <p>${body}</p>
+    <p style="font-size:0.8rem;margin-top:0.5rem">FÃ©: VocÃª ${G.me.fe} â€” Inimigo ${G.enemy.fe}</p>
+  `, [{label:'Jogar novamente', fn:()=>{ closeModal(); showScreen('deckselect'); }}, {label:'Menu principal', fn:()=>{ closeModal(); showScreen('title'); }}]);
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  TOAST
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  SCREENS
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('screen-'+id).classList.remove('hidden');
+}
+
+function startGame(deck) {
+  if(!_dataLoaded) { showToast('Aguardando dados das cartas...'); return; }
+  newGame(deck);
+  showScreen('game');
+
+  const myName = document.getElementById('hud-my-name');
+  myName.className = 'player-name ' + deck;
+  const enName = document.getElementById('hud-en-name');
+  enName.className = 'player-name ' + (deck==='aq'?'jo':'aq');
+
+  updateHud();
+  renderBoard();
+  renderHand();
+  startMyTurn();
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//  LOAD CARD DATA FROM JSON
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+fetch('cards.json')
+  .then(r => r.json())
+  .then(data => {
+    CARD_DEFS = data.CARD_DEFS;
+    DECK_LISTS = data.DECK_LISTS;
+    _dataLoaded = true;
+  })
+  .catch(err => {
+    console.error('Erro ao carregar cards.json:', err);
+    alert('Falha ao carregar dados das cartas. Verifique se cards.json existe e o servidor estÃ¡ rodando.');
+  });
+</script>
+</body>
+</html>
