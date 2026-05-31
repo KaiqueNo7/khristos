@@ -535,6 +535,15 @@
                     </div>
                 </div>
                 ` : ''}
+
+                ${card.requirements ? `
+                <div class="card-requirements" style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.5rem; text-align: center; border-top: 1px solid var(--border-glass); padding-top: 0.5rem;">
+                    ${card.requirements.minFe ? `<span>Req: ${card.requirements.minFe} Fé</span>` : ''}
+                    ${card.requirements.minFraq ? `<span>Req: ${card.requirements.minFraq} Fraq</span>` : ''}
+                    ${card.requirements.requiresRelic ? `<span> + ${card.requirements.requiresRelic}</span>` : ''}
+                    ${card.requirements.requires2Zones ? `<span> + 2 Zonas</span>` : ''}
+                </div>
+                ` : ''}
             `;
 
       if (!isZoomed) {
