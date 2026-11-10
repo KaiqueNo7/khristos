@@ -1,174 +1,58 @@
-# GDD - Khristós
+# Khristós
 
-## Visão Geral
+Card game de disputa de influência espiritual. Dois Santos, três zonas, nenhuma carta ataca: a Fé só conta para quem domina a maioria das zonas, e vence quem reunir 100 primeiro.
 
-**Khristós** (anteriormente Faith Conquest) é um card game estratégico competitivo focado em disputa de influência espiritual e controle territorial.
+As regras completas estão em [GDD.md](GDD.md).
 
-Os jogadores não vencem através de dano ou destruição física, mas sim conquistando Fé através de regiões do tabuleiro, sinergias teológicas e domínio ideológico.
+## Como jogar
 
-### Mecânicas Principais:
-- controle regional
-- geração de Fé
-- gerenciamento de Fraqueza
-- posicionamento estratégico
-- evolução de estruturas
-- combos de adjacência
-- disputa de influência
+O jogo é HTML e JavaScript puro, sem build e sem dependências. Ele precisa ser servido por HTTP porque carrega `cards.json`.
 
-### Foco da Experiência:
-- estratégia
-- construção de engine
-- controle de zonas
-- progressão de tabuleiro
-- arquétipos históricos/religiosos
+```bash
+npm start
+```
 
----
+Depois abra `http://localhost:5180/`. A porta muda com a variável `PORT`.
 
-## Filosofia do Game
+Na partida, arraste uma carta até um destino destacado, ou clique nela e depois no destino. Cartas em campo com o sinal dourado têm uma habilidade: clique para usar. O painel à direita mostra quem domina cada zona e quanto de Fé você ganha se encerrar o turno agora.
 
-O jogo **NÃO é**:
-- um simulador de guerra religiosa
-- um jogo de combate físico
-- um clone de TCG tradicional
+## Comandos
 
-O jogo **É**:
-- uma disputa de influência
-- um jogo de domínio espiritual
-- um TCG de estratégia territorial
-- um jogo de construção ideológica
+```bash
+npm test
+```
 
----
+Roda os testes do motor de regras e da IA com o test runner do Node.
 
-## Estrutura da Partida
+```bash
+npm run sim
+```
 
-### Objetivo Principal
-Chegar a **50 de Fé** antes do oponente.
+Joga 400 partidas entre duas IAs e mostra taxa de vitória por baralho e por cadeira, duração, trocas de maioria, Sacramentos, Fervor e Heresias por partida, e quanto cada carta é jogada. `node tools/sim.js 300 feToWin=90` joga 300 partidas com meta de 90 de Fé; qualquer regra de `RULES` aceita o mesmo formato, como `secondSab.bonus=0`.
 
-### Condição Alternativa de Vitória: Jesus Cristo
-Condição extremamente rara e difícil.
-**Exemplos de requisitos:**
-- Maria em campo
-- José em campo
-- Anjo ativo
-- Controle da Zona Central
-- Alta quantidade de Fé
-- Baixa Fraqueza no board
+## Estrutura
 
-**Efeito:** Vitória imediata. Deve ser rara, cinematográfica e lendária.
-
----
-
-## Estrutura do Board
-
-### Total de Slots: 10 slots
-- 5 slots para cada jogador
-- Confronto vertical direto
-
-### Zonas do Tabuleiro
-| Zona | Quantidade de Slots |
+| Caminho | O que é |
 | --- | --- |
-| Zona 1 | 8 |
-| Zona Central | 4 |
-| Zona 3 | 8 |
+| `cards.json` | Regras numéricas, todas as cartas e as listas dos baralhos |
+| `js/engine.js` | Motor de regras puro, sem DOM; o estado é um objeto JSON |
+| `js/ai.js` | Oponente: avalia cada jogada possível e escolhe a melhor |
+| `js/ui.js` | Tabuleiro, mão, arrastar e soltar, e a fila de animações |
+| `js/fx.js` | Partículas em canvas |
+| `js/audio.js` | Sons sintetizados (órgão, coro, tímpanos, sinos) e a trilha que cresce com a partida |
+| `js/cardview.js` | Desenho das cartas e emblemas das cartas sem pintura |
+| `js/main.js` | Telas, regras e hierarquia |
+| `css/game.css` | Todo o visual |
+| `tests/` | Testes do motor e da IA |
+| `tools/` | Servidor local, simulador e `audio-check.html`, que mede cada som |
+| `view-cards.html` | Galeria de cartas |
 
-### Regras das Zonas
-- **Zonas 1 e 3:** Disponíveis desde o início. Foco em early game, geração inicial de Fé e construção de engine.
-- **Zona Central:** Desbloqueia no **Turno 5**. Possui maior importância estratégica, favorecendo cartas lendárias e santos. Foco em mid/late game e cartas épicas.
+## Depuração
 
-### Controle de Zona
-Uma zona é controlada pelo jogador que possuir **mais Fé total** na região.
-O controle de zonas é requisito para evoluções, milagres, cartas lendárias e ativação de santos.
+Abrir `khristos.html?debug` expõe `window.khristos` no console, com o motor (`E`), o estado (`state()`), `refresh()`, `perform(ação)` e `setPace(n)`.
 
----
-
-## Recursos do Jogo
-
-### 1. Sabedoria
-Recurso principal para jogar cartas.
-- O jogador ganha **1 Sabedoria por turno** (crescimento automático).
-- Sem cartas de mana tradicionais.
-
-### 2. Fé
-Representa influência espiritual e domínio ideológico.
-- Acumulada globalmente.
-- Gerada através do domínio regional.
-
-### 3. Fraqueza
-Representa vulnerabilidade (heresia, corrupção, debate).
-- Quanto maior a Fraqueza, mais vulnerável a efeitos inimigos.
-
----
-
-## Resolução de Rodada
-Uma rodada consiste em 1 turno de cada jogador. Ao final da rodada, todas as regiões são resolvidas.
-
-### Cálculo Regional
-Para cada região: `(Fé Aliada) - (Fé Inimiga)`
-O vencedor ganha a diferença em Fé global.
-
-**Exemplo:**
-- Você: 7 Fé
-- Oponente: 4 Fé
-- Resultado: +3 Fé Global para você.
-
-### Negativação de Fé
-Negativar a Fé inimiga é possível, mas raro. Acontece através de combos, heresias ou eventos fortes. Objetivo: evitar snowball excessivo e permitir comebacks.
-
----
-
-## Tipos de Carta
-
-1. **Santos:** Cartas lendárias centrais. Definem arquétipo, estilo de deck e passivas globais. Alto custo, alta influência, baixa quantidade no deck.
-2. **Monumentos:** Estruturas permanentes (Capela, Igreja, Catedral). Geração passiva de Fé e buffs regionais.
-3. **Unidades Comuns:** Padres, Monges, Freis, Missionários. Early game, suporte, adjacência e controle de Fraqueza.
-4. **Relíquias:** Equipamentos permanentes. Buffs persistentes e redução de Fraqueza.
-5. **Milagres / Orações:** Cartas instantâneas (Pentecostes, Louvor). Buffs temporários e explosões de Fé.
-6. **Heresias / Eventos Negativos:** Redução de Fé, corrupção regional e controle estratégico.
-
----
-
-## Sistema de Evolução
-As cartas permanecem em campo (não morrem naturalmente), mas podem ser substituídas ou evoluídas.
-
-- **Monumentos:** Capela → Igreja → Catedral (Aumenta Fé, reduz Fraqueza).
-- **Unidades:** Padre → Bispo → Cardeal (Maior estabilidade, menor Fraqueza, buffs mais fortes).
-
-**Requisitos de Evolução:** Podem exigir controle de zona, Fé mínima ou controle da Zona Central.
-
----
-
-## Sistema de Adjacência
-Sinergias laterais (apenas lateral, sem diagonal).
-Ex: Igrejas buffam Padres adjacentes; Relíquias fortalecem Monumentos.
-
----
-
-## Estrutura de Deck
-- **Total:** 30 cartas.
-- **Santos / Épicas:** Máximo 2 cópias.
-- **Comuns:** Máximo 3 cópias.
-
----
-
-## Fluxo de Turno
-1. **Início:** Ganha 1 Sabedoria, compra 1 carta.
-2. **Fase Principal:** Jogar cartas, evoluir, ativar efeitos.
-3. **Fim da Rodada:** Resolução regional, cálculo de Fé, controle de zonas.
-
----
-
-## Arquétipos Iniciais
-
-### São Tomás de Aquino
-- **Estilo:** Controle / Anti-Heresia / Scaling.
-- **Características:** Reduz Fraqueza, estabiliza o board, crescimento lento e consistente.
-
-### Joana D’Arc
-- **Estilo:** Aggro / Rush espiritual / Pressão regional.
-- **Características:** Alta geração de Fé cedo, domínio rápido de zonas, alta Fraqueza.
-
----
-
-## Filosofia Visual
-- **Referências:** Pinturas clássicas, arte sacra renascentista, iluminação cinematográfica.
-- **Objetivo:** Solenidade, espiritualidade e grandiosidade histórica.
+```js
+const G = khristos.state();
+khristos.E.toHand(G, 0, 'cardeal');
+khristos.refresh();
+```

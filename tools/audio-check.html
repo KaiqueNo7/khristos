@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khristós · conferência do som</title>
+<style>
+  body { margin: 0; padding: 24px; background: #17120e; color: #eadfc4; font: 15px/1.45 Georgia, serif; }
+  h1 { margin: 0 0 4px; font-size: 24px; color: #f4dc98; }
+  p { margin: 0 0 14px; max-width: 70ch; }
+  section { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 18px; padding: 12px 14px; border: 1px solid #4a3b28; border-radius: 6px; }
+  button { padding: 5px 12px; border: 1px solid #8a6f3c; border-radius: 4px; background: #2a2018; color: inherit; font: inherit; cursor: pointer; }
+  button:hover { background: #3a2c1e; }
+  table { border-collapse: collapse; width: 100%; max-width: 980px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 4px 10px; border-bottom: 1px solid #33291d; text-align: right; }
+  th:first-child, td:first-child, th:nth-child(5), td:nth-child(5) { text-align: left; }
+  th { color: #b9a67c; font-weight: normal; }
+  tr.fail td { color: #ff8f73; }
+  tr.ok td:nth-child(5) { color: #9fd08a; }
+  pre { margin-top: 24px; padding: 12px; background: #0f0c09; border-radius: 6px; overflow: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Khristós · conferência do som</h1>
+<p>Cada efeito é renderizado fora do tempo real pelo mesmo barramento do jogo e medido. A duração vai do primeiro ao último instante acima de −60 dBFS; o RMS é medido nesse trecho.</p>
+<p id="status">Renderizando…</p>
+<section>
+  <b>Música</b>
+  <button id="music-start">Tocar</button>
+  <button id="music-stop">Parar</button>
+  <label>Intensidade <input id="intensity" type="range" min="0" max="1" step="0.01" value="0"></label>
+  <output id="intensity-value">0.00</output>
+  <label><input id="enemy" type="checkbox"> Turno do oponente</label>
+</section>
+<table>
+  <thead><tr><th>Som</th><th>Duração (s)</th><th>Pico (dBFS)</th><th>RMS (dBFS)</th><th>Meta</th><th></th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+<pre id="json"></pre>
+<script type="module">
+import { createSound } from '../js/audio.js';
+
+const RATE = 48000;
+const $ = id => document.getElementById(id);
+const db = value => (value > 0 ? 20 * Math.log10(value) : -Infinity);
+const round = value => (Number.isFinite(value) ? Math.round(value * 100) / 100 : null);
+
+const SHORT = { max: -9, under: 0.9, text: 'pico ≤ −9 e duração < 0,9 s' };
+const BIG = { min: -6, max: -1, text: 'pico entre −6 e −1' };
+const ANY = { max: -1, text: 'pico ≤ −1' };
+const SCORE = { max: -10, text: 'pico < −10 em 20 s' };
+
+const SOUNDS = [
+  ...[1, 4, 8].flatMap(cost => [1, 3, 5].map(chain => [`card custo ${cost} sequência ${chain}`, 'card', { cost, chain }, 3, SHORT])),
+  ['card custo 10 sequência 12', 'card', { cost: 10, chain: 12 }, 3, SHORT],
+  ['card do oponente custo 4', 'card', { cost: 4, enemy: true }, 3, SHORT],
+  ['draw', 'draw', undefined, 3, SHORT],
+  ['trigger', 'trigger', undefined, 3, SHORT],
+  ['nope', 'nope', undefined, 3, SHORT],
+  ['evolve', 'evolve', {}, 9, ANY],
+  ['evolve topo', 'evolve', { top: true }, 10, ANY],
+  ['relic', 'relic', undefined, 8, ANY],
+  ['bless', 'bless', undefined, 9, ANY],
+  ['sacrament', 'sacrament', undefined, 11, ANY],
+  ['heresy 1', 'heresy', { power: 1 }, 8, ANY],
+  ['heresy 2', 'heresy', { power: 2 }, 9, ANY],
+  ['heresy 3', 'heresy', { power: 3 }, 11, ANY],
+  ['destroy', 'destroy', undefined, 9, ANY],
+  ['bell', 'bell', false, 9, ANY],
+  ['bell do oponente', 'bell', true, 9, ANY],
+  ['count 0', 'count', 0, 7, ANY],
+  ['count 2', 'count', 2, 7, ANY],
+  ['fe 0', 'fe', 0, 8, ANY],
+  ['fe 2', 'fe', 2, 8, ANY],
+  ['nofaith', 'nofaith', undefined, 5, ANY],
+  ['majority', 'majority', true, 11, BIG],
+  ['majority do oponente', 'majority', false, 11, BIG],
+  ['hegemony', 'hegemony', undefined, 12, BIG],
+  ['fervor 1', 'fervor', 1, 8, ANY],
+  ['fervor 3', 'fervor', 3, 8, ANY],
+  ['office', 'office', undefined, 8, ANY],
+  ['active', 'active', undefined, 8, ANY],
+  ['saint', 'saint', false, 12, BIG],
+  ['saint do oponente', 'saint', true, 12, BIG],
+  ['loss', 'loss', undefined, 8, ANY],
+  ['win', 'win', undefined, 14, BIG],
+  ['lose', 'lose', undefined, 14, ANY]
+];
+const PILE = ['win', 'hegemony', 'saint', 'majority', 'sacrament', 'destroy', 'bell', 'card'];
+const MUSIC_SECONDS = 20;
+const BATCH = 6;
+
+const JOBS = [
+  ...SOUNDS.map(([name, method, arg, seconds, target]) => ({ name, seconds, target, play: sound => sound.sfx[method](arg) })),
+  { name: 'todos de uma vez (teto)', seconds: 14, target: ANY, play: sound => PILE.forEach(method => sound.sfx[method]()) },
+  ...[[0, false], [0.5, false], [1, false], [1, true]].map(([intensity, enemy]) => ({
+    name: `música intensidade ${intensity}${enemy ? ' no turno do oponente' : ''}`,
+    seconds: MUSIC_SECONDS,
+    target: SCORE,
+    intensity,
+    enemy,
+    play: sound => {
+      sound.music.setIntensity(intensity);
+      sound.music.setTurn(!enemy);
+      sound.music.start();
+    }
+  }))
+];
+
+function measure(buffer, whole = false) {
+  const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c));
+  let peak = 0;
+  let first = buffer.length;
+  let last = -1;
+  for (const data of channels) {
+    for (let i = 0; i < data.length; i++) {
+      const size = Math.abs(data[i]);
+      if (size > peak) peak = size;
+      if (size <= 0.001) continue;
+      if (i < first) first = i;
+      if (i > last) last = i;
+    }
+  }
+  const from = whole || last < 0 ? 0 : first;
+  const to = whole ? buffer.length : last + 1;
+  let sum = 0;
+  for (const data of channels) for (let i = from; i < to; i++) sum += data[i] * data[i];
+  return {
+    length: round(Math.max(0, to - from) / buffer.sampleRate),
+    peak: round(db(peak)),
+    rms: round(db(Math.sqrt(sum / (channels.length * Math.max(1, to - from))))),
+    cut: last >= buffer.length - buffer.sampleRate * 0.05
+  };
+}
+
+function judge(result, target, whole = false) {
+  const issues = [];
+  if (result.peak === null || result.rms === null || result.rms <= -50) issues.push('silencioso');
+  if (result.peak > target.max) issues.push(`pico acima de ${target.max} dBFS`);
+  if (target.min !== undefined && result.peak < target.min) issues.push(`pico abaixo de ${target.min} dBFS`);
+  if (target.under !== undefined && result.length >= target.under) issues.push(`mais longo que ${target.under} s`);
+  if (result.cut && !whole) issues.push('cauda cortada pela renderização');
+  return issues;
+}
+
+async function render(seconds, play) {
+  const ctx = new OfflineAudioContext(2, RATE * seconds, RATE);
+  play(createSound(ctx));
+  return ctx.startRendering();
+}
+
+let player = null;
+function live() {
+  if (!player) {
+    const ctx = new AudioContext();
+    player = { ctx, ...createSound(ctx) };
+  }
+  if (player.ctx.state !== 'running') player.ctx.resume();
+  return player;
+}
+
+function row(job, result, issues) {
+  const tr = document.createElement('tr');
+  tr.className = issues.length ? 'fail' : 'ok';
+  for (const text of [job.name, result.length.toFixed(2), result.peak.toFixed(2), result.rms.toFixed(2), issues.length ? issues.join('; ') : `ok · ${job.target.text}`]) {
+    const td = document.createElement('td');
+    td.textContent = text;
+    tr.append(td);
+  }
+  const td = document.createElement('td');
+  const button = document.createElement('button');
+  button.textContent = 'Tocar';
+  button.onclick = () => {
+    job.play(live());
+    if (job.target !== SCORE) return;
+    $('intensity').value = job.intensity;
+    $('intensity-value').textContent = job.intensity.toFixed(2);
+    $('enemy').checked = job.enemy;
+  };
+  td.append(button);
+  tr.append(td);
+  $('rows').append(tr);
+}
+
+async function run() {
+  const results = [];
+  for (let i = 0; i < JOBS.length; i += BATCH) {
+    $('status').textContent = `Renderizando ${Math.min(i + BATCH, JOBS.length)} de ${JOBS.length}…`;
+    results.push(...await Promise.all(JOBS.slice(i, i + BATCH).map(async job => measure(await render(job.seconds, job.play), job.target === SCORE))));
+  }
+  const report = { sampleRate: RATE, pass: true, sounds: [], music: [] };
+  JOBS.forEach((job, i) => {
+    const score = job.target === SCORE;
+    const issues = judge(results[i], job.target, score);
+    row(job, results[i], issues);
+    (score ? report.music : report.sounds).push({ name: job.name, length: results[i].length, peak: results[i].peak, rms: results[i].rms, issues });
+  });
+  report.pass = [...report.sounds, ...report.music].every(entry => !entry.issues.length);
+  $('status').textContent = report.pass ? 'Tudo dentro das metas.' : 'Há sons fora das metas: veja as linhas em vermelho.';
+  $('json').textContent = JSON.stringify(report, null, 2);
+  document.body.dataset.done = report.pass ? 'ok' : 'falhou';
+}
+
+$('music-start').onclick = () => {
+  const sound = live();
+  sound.music.setIntensity(Number($('intensity').value));
+  sound.music.setTurn(!$('enemy').checked);
+  sound.music.start();
+};
+$('music-stop').onclick = () => live().music.stop();
+$('intensity').oninput = () => {
+  $('intensity-value').textContent = Number($('intensity').value).toFixed(2);
+  live().music.setIntensity(Number($('intensity').value));
+};
+$('enemy').onchange = () => live().music.setTurn(!$('enemy').checked);
+
+run().catch(error => {
+  $('status').textContent = `Falhou: ${error.message}`;
+  $('json').textContent = JSON.stringify({ pass: false, error: String(error && error.stack || error) }, null, 2);
+  document.body.dataset.done = 'erro';
+});
+</script>
+</body>
+</html>

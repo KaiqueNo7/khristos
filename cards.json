@@ -1,8 +1,25 @@
 {
+  "RULES": {
+    "feToWin": 100,
+    "handStart": 5,
+    "handMax": 10,
+    "sabMax": 10,
+    "monumentLimit": 2,
+    "zoneCols": [2, 2, 2],
+    "wildZone": 1,
+    "majority": 2,
+    "hegemony": 6,
+    "lastRound": 25,
+    "secondSab": {
+      "bonus": 1,
+      "untilRound": 5
+    }
+  },
   "CARD_DEFS": {
     "sta_santo": {
       "id": "sta_santo",
       "name": "São Tomás de Aquino",
+      "epithet": "Doutor Angélico",
       "type": "Santo",
       "sub": "Lendário",
       "cost": 7,
@@ -12,17 +29,17 @@
       "copies": 1,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/sta_santo.jpg",
-      "effect": "Ativo: Todas as unidades aliadas perdem 5 de Fraqueza. Todas as cartas custam 1 de Sabedoria a menos neste turno.",
-      "passive": "scholastic_bonus",
+      "effect": "Passiva: unidades aliadas entram em campo com −2 de Fraqueza. Ativo (2 de Sabedoria): até o seu próximo turno, unidades aliadas nesta zona têm −3 de Fraqueza; neste turno, seus Sacramentos custam 1 de Sabedoria a menos. Na Zona Central, o ativo protege as três zonas.",
       "active": {
-        "key": "reduce_fraq_all",
-        "cost": 0,
-        "label": "−5 Fraqueza (Global)"
+        "key": "sta_doutrina",
+        "cost": 2,
+        "label": "Ensinar a doutrina"
       }
     },
     "jo_santo": {
       "id": "jo_santo",
       "name": "Joana D'Arc",
+      "epithet": "A Donzela de Orléans",
       "type": "Santo",
       "sub": "Lendário",
       "cost": 5,
@@ -32,11 +49,11 @@
       "copies": 1,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/jo_santo.jpg",
-      "effect": "Ativo: Assume o domínio da região atual. Passiva: Unidades inimigas na mesma região recebem +2 de Fraqueza. Não pode ser alvo de cartas de Heresia.",
+      "effect": "Passiva: unidades inimigas na mesma zona têm +2 de Fraqueza; com ela na Zona Central, em todas as zonas. Não pode ser alvo de Heresias. Ativo (2 de Sabedoria): você domina esta zona até o fim do seu turno.",
       "active": {
-        "key": "auto_dominio",
-        "cost": 0,
-        "label": "Dominar Região"
+        "key": "jo_dominio",
+        "cost": 2,
+        "label": "Dominar a zona"
       }
     },
     "acolito": {
@@ -48,10 +65,11 @@
       "fe": 1,
       "fraq": 9,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/acolito.jpg",
-      "effect": "Pode evoluir para Seminarista.",
+      "effect": "Vocação: ao entrar em campo, busque um Seminarista no seu baralho.",
+      "vocacao": true,
       "evolvesTo": "seminarista"
     },
     "seminarista": {
@@ -63,10 +81,11 @@
       "fe": 2,
       "fraq": 8,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/seminarista.jpg",
-      "effect": "Passiva: Se estiver adjacente a um Santo ou Monumento, recebe +1 de Fé. Pode evoluir para Diácono.",
+      "effect": "Vocação: ao entrar em campo, busque um Diácono no seu baralho. Passiva: adjacente a um Santo ou Monumento aliado, +1 de Fé.",
+      "vocacao": true,
       "evolvesTo": "diacono"
     },
     "diacono": {
@@ -78,10 +97,19 @@
       "fe": 3,
       "fraq": 7,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/diacono.jpg",
-      "effect": "Ativo: Compra uma carta de Bênção do baralho. Pode evoluir para Padre.",
+      "effect": "Vocação: ao entrar em campo, busque um Padre no seu baralho. Ativo (1 de Sabedoria): compre uma Bênção do seu baralho.",
+      "vocacao": true,
+      "active": {
+        "key": "diacono_bencao",
+        "cost": 1,
+        "label": "Buscar uma Bênção"
+      },
+      "evolveReq": {
+        "zoneFe": 3
+      },
       "evolvesTo": "padre"
     },
     "padre": {
@@ -93,10 +121,13 @@
       "fe": 4,
       "fraq": 6,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/padre.jpg",
-      "effect": "Passiva: Se estiver adjacente a um Monumento, perde 3 de Fraqueza. Pode evoluir para Bispo.",
+      "effect": "Passiva: adjacente a um Monumento aliado, −3 de Fraqueza. Sobe de ofício conforme a zona cresce.",
+      "evolveReq": {
+        "zoneFe": 5
+      },
       "evolvesTo": "bispo"
     },
     "bispo": {
@@ -108,10 +139,14 @@
       "fe": 6,
       "fraq": 4,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/bispo.jpg",
-      "effect": "Passiva: Permite construir 1 Monumento extra na região. Todas as Igrejas na mesma região geram +1 de Fé. Pode evoluir para Cardeal.",
+      "effect": "Passiva: Igrejas aliadas na zona têm +1 de Fé e a zona comporta 1 Monumento a mais. Sobe de ofício conforme você domina zonas.",
+      "evolveReq": {
+        "zoneFe": 8,
+        "dominio": true
+      },
       "evolvesTo": "cardeal"
     },
     "cardeal": {
@@ -123,11 +158,14 @@
       "fe": 8,
       "fraq": 3,
       "slots": 2,
-      "copies": 2,
+      "copies": 1,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/cardeal.jpg",
-      "effect": "Passiva: Todos os Monumentos na região geram +2 de Fé. Unidades aliadas adjacentes recebem +2 de Fé.",
-      "passive": "cardeal_bonus"
+      "effect": "Passiva: Monumentos aliados na zona têm +2 de Fé e unidades aliadas adjacentes têm +2 de Fé. Topo da escada: não pode ser destruído.",
+      "evolveReq": {
+        "zoneFe": 12,
+        "dominio": true
+      }
     },
     "monge": {
       "id": "monge",
@@ -138,11 +176,10 @@
       "fe": 2,
       "fraq": 8,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/monge_copista.webp",
-      "effect": "Ao entrar em campo: compra 1 carta imediatamente.",
-      "onEnter": "draw_1"
+      "effect": "Ao entrar em campo: busque um Acólito no seu baralho. Se não houver, compre 1 carta."
     },
     "eremita": {
       "id": "eremita",
@@ -156,26 +193,52 @@
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/eremita.jpg",
-      "effect": "Passiva: Se for a única unidade na região, recebe +3 de Fé e −5 de Fraqueza.",
-      "passive": "hermit_meditation"
+      "effect": "Passiva: sendo a sua única unidade na zona, +3 de Fé e −5 de Fraqueza."
     },
-    "confessor": {
-      "id": "confessor",
-      "name": "Confessor",
+    "catecumeno": {
+      "id": "catecumeno",
+      "name": "Catecúmeno",
+      "type": "Unidade",
+      "sub": "Comum",
+      "cost": 1,
+      "fe": 1,
+      "fraq": 9,
+      "slots": 1,
+      "copies": 1,
+      "deck": "aq",
+      "effect": "Passiva: sempre que você celebra um Sacramento nesta zona, ganha +2 de Fé."
+    },
+    "martir": {
+      "id": "martir",
+      "name": "Mártir",
       "type": "Unidade",
       "sub": "Raro",
-      "cost": 4,
-      "fe": 4,
-      "fraq": 6,
+      "cost": 3,
+      "fe": 3,
+      "fraq": 9,
       "slots": 1,
-      "copies": 3,
+      "copies": 1,
       "deck": "aq",
-      "backgroundImage": "assets/images/cards/confessor.jpg",
-      "effect": "Ativo: Remove a Heresia de uma unidade aliada à sua escolha.",
+      "effect": "Passiva: as unidades adjacentes a ele não podem ser alvo de Heresias inimigas. Sempre que ele é alvo de uma Heresia, ganha +2 de Fé (até 3 vezes)."
+    },
+    "inquisidor": {
+      "id": "inquisidor",
+      "name": "Inquisidor",
+      "type": "Unidade",
+      "sub": "Raro",
+      "cost": 3,
+      "fe": 3,
+      "fraq": 4,
+      "slots": 1,
+      "copies": 1,
+      "deck": "aq",
+      "effect": "Passiva: unidades inimigas nesta zona com 8 ou mais de Fraqueza têm −2 de Fé. Ativo (1 de Sabedoria): uma unidade inimiga nesta zona recebe +2 de Fraqueza (até 3 vezes).",
+      "backgroundImage": "assets/images/cards/inquisidor.jpg",
       "active": {
-        "key": "remove_heresy",
-        "cost": 0,
-        "label": "Remover Heresia"
+        "key": "inquisidor_interrogar",
+        "cost": 1,
+        "label": "Interrogar",
+        "target": "enemyUnit"
       }
     },
     "devoto": {
@@ -187,14 +250,14 @@
       "fe": 2,
       "fraq": 8,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/devoto.jpg",
-      "effect": "Ativo: Procura e compra uma carta de Santo do baralho. Passiva: Se estiver adjacente a um Santo, recebe +1 de Fé e −3 de Fraqueza.",
+      "effect": "Passiva: adjacente a um Santo aliado, +1 de Fé e −3 de Fraqueza. Ativo: busque um Santo no seu baralho.",
       "active": {
-        "key": "search_santo",
+        "key": "devoto_santo",
         "cost": 0,
-        "label": "Buscar Santo"
+        "label": "Buscar um Santo"
       }
     },
     "missionario": {
@@ -206,15 +269,10 @@
       "fe": 2,
       "fraq": 7,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/missionario.jpg",
-      "effect": "Ativo: Se o inimigo jogar uma unidade na sua região neste turno, compra 1 carta.",
-      "active": {
-        "key": "draw_1",
-        "cost": 0,
-        "label": "Comprar 1 carta"
-      }
+      "effect": "Quando o oponente joga uma unidade nesta zona, você compra 1 carta (uma vez por turno)."
     },
     "cavaleiro_templario": {
       "id": "cavaleiro_templario",
@@ -225,11 +283,12 @@
       "fe": 2,
       "fraq": 6,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/cavaleiro_templario.jpg",
-      "effect": "Passiva: Se a Fraqueza regional for menor que 7, recebe +3 de Fé. Pode evoluir para Frei.",
-      "evolvesTo": "frei"
+      "effect": "Passiva: se a Fraqueza total das suas cartas na zona for menor que 7, +3 de Fé. Fervor: entra em campo com −2 de Fraqueza.",
+      "evolvesTo": "frei",
+      "fervor": true
     },
     "frei": {
       "id": "frei",
@@ -240,14 +299,18 @@
       "fe": 3,
       "fraq": 7,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/frei.webp",
-      "effect": "Ativo: Move-se para qualquer região adjacente. Passiva: Cada vez que mudar de região, recebe +1 de Fé e −1 de Fraqueza (máximo de 8 vezes).",
+      "effect": "Ativo: mova-se para um espaço livre de uma zona vizinha. Cada mudança de zona dá +1 de Fé e −1 de Fraqueza (até 8 vezes).",
       "active": {
-        "key": "move_to_adjacent_region",
+        "key": "frei_mover",
         "cost": 0,
-        "label": "Mover para região adjacente"
+        "label": "Peregrinar",
+        "target": "moveSlot"
+      },
+      "evolveReq": {
+        "zoneFe": 4
       }
     },
     "jovem_de_fe": {
@@ -259,10 +322,24 @@
       "fe": 4,
       "fraq": 7,
       "slots": 1,
-      "copies": 3,
+      "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/jovem_de_fe.jpg",
-      "effect": "Passiva: Se a região tiver 10 ou mais de Fé, ou se Joana D'Arc estiver na mesma região, recebe +2 de Fé e −2 de Fraqueza."
+      "effect": "Passiva: com 10 ou mais de Fé sua na zona, ou com Joana D'Arc na zona ou na Zona Central, +2 de Fé e −2 de Fraqueza."
+    },
+    "pregador": {
+      "id": "pregador",
+      "name": "Pregador Itinerante",
+      "type": "Unidade",
+      "sub": "Comum",
+      "cost": 3,
+      "fe": 2,
+      "fraq": 6,
+      "slots": 1,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Ao entrar em campo: compre 1 carta. Passiva: +1 de Fé para cada 4 de Fraqueza do oponente nesta zona (máximo +4).",
+      "backgroundImage": "assets/images/cards/monge.jpg"
     },
     "capela": {
       "id": "capela",
@@ -276,7 +353,7 @@
       "copies": 3,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/capela.webp",
-      "effect": "Gera 2 de Fé na região. Pode evoluir para Igreja.",
+      "effect": "Primeiro templo da linha.",
       "evolvesTo": "igreja"
     },
     "igreja": {
@@ -291,7 +368,10 @@
       "copies": 3,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/igreja.jpg",
-      "effect": "Passiva: Reduz em 2 a Fraqueza da região. Pode evoluir para Basílica.",
+      "effect": "Passiva: a Fraqueza total das suas cartas na zona é reduzida em 2.",
+      "evolveReq": {
+        "zoneFe": 4
+      },
       "evolvesTo": "basilica"
     },
     "basilica": {
@@ -306,7 +386,11 @@
       "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/basilica.jpg",
-      "effect": "Passiva: Todas as unidades aliadas na região recebem +1 de Fé por turno. Pode evoluir para Catedral.",
+      "effect": "Passiva: unidades aliadas na zona têm +1 de Fé.",
+      "evolveReq": {
+        "zoneFe": 8,
+        "dominio": true
+      },
       "evolvesTo": "catedral"
     },
     "catedral": {
@@ -321,7 +405,11 @@
       "copies": 2,
       "deck": "comun",
       "backgroundImage": "assets/images/cards/catedral.jpg",
-      "effect": "Passiva: Todas as unidades aliadas na região recebem +2 de Fé por turno."
+      "effect": "Passiva: unidades aliadas na zona têm +2 de Fé. Topo da linha: não pode ser destruída.",
+      "evolveReq": {
+        "zoneFe": 12,
+        "dominio": true
+      }
     },
     "mosteiro_beneditino": {
       "id": "mosteiro_beneditino",
@@ -335,7 +423,7 @@
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/mosteiro_beneditino.jpg",
-      "effect": "Passiva: Todas as unidades na região perdem 2 de Fraqueza por turno."
+      "effect": "Passiva: unidades aliadas na zona têm −2 de Fraqueza."
     },
     "scriptorium": {
       "id": "scriptorium",
@@ -349,8 +437,7 @@
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/scriptorium.webp",
-      "effect": "Passiva: Cada vez que uma unidade for jogada nesta região, compre 1 carta.",
-      "passive": "wisdom_focus"
+      "effect": "Passiva: sempre que você joga uma unidade nesta zona, compre 1 carta."
     },
     "convento": {
       "id": "convento",
@@ -364,8 +451,7 @@
       "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/convento.jpg",
-      "effect": "Passiva: Se todos os espaços da região estiverem ocupados, ganha +1 de Sabedoria por turno.",
-      "passive": "wisdom_focus"
+      "effect": "Passiva: no início do seu turno, se todos os seus espaços da zona estiverem ocupados, +1 de Sabedoria."
     },
     "manto": {
       "id": "manto",
@@ -377,10 +463,10 @@
       "fraq": 0,
       "slots": 0,
       "copies": 2,
-      "duration": 1,
       "deck": "aq",
-      "effect": "Equipa em: Unidade. A unidade equipada não pode ser alvo de cartas de Heresia. Dura 1 turno.",
-      "equipTarget": "Unidade"
+      "effect": "Equipa em Unidade. Até o seu próximo turno, ela não pode ser alvo de Heresias. Depois vai para o Retiro.",
+      "equipTarget": ["Unidade"],
+      "untilNextTurn": true
     },
     "calice": {
       "id": "calice",
@@ -394,8 +480,8 @@
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/calice.webp",
-      "effect": "Equipa em: Monumento. O monumento equipado ganha +2 de Fé. Permite usar a Bênção Eucaristia.",
-      "equipTarget": "Monumento"
+      "effect": "Equipa em Monumento. +2 de Fé. Permite celebrar a Eucaristia na zona.",
+      "equipTarget": ["Monumento"]
     },
     "cruz_joana": {
       "id": "cruz_joana",
@@ -409,8 +495,79 @@
       "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/cruz_joana.jpg",
-      "effect": "Equipa em: Joana D'Arc. Dobra a Fé de Joana por 2 rodadas. +2 de Fé para cada unidade aliada em campo.",
-      "equipTarget": "jo_santo"
+      "effect": "Equipa em Joana D'Arc. +1 de Fé para cada unidade aliada em campo.",
+      "equipTarget": ["jo_santo"]
+    },
+    "livro": {
+      "id": "livro",
+      "name": "Suma Teológica",
+      "type": "Relíquia",
+      "sub": "Raro",
+      "cost": 3,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Equipa em Unidade ou Santo. −3 de Fraqueza e +1 de Fé.",
+      "equipTarget": ["Unidade", "Santo"]
+    },
+    "relicario": {
+      "id": "relicario",
+      "name": "Relicário",
+      "type": "Relíquia",
+      "sub": "Comum",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Equipa em Unidade. +2 de Fé.",
+      "equipTarget": ["Unidade"]
+    },
+    "estandarte": {
+      "id": "estandarte",
+      "name": "Estandarte de Orléans",
+      "type": "Relíquia",
+      "sub": "Épico",
+      "cost": 4,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Equipa em Unidade ou Santo. Dobra a Fé do portador por 2 rodadas. Depois vai para o Retiro.",
+      "equipTarget": ["Unidade", "Santo"],
+      "rounds": 2
+    },
+    "armadura": {
+      "id": "armadura",
+      "name": "Armadura",
+      "type": "Relíquia",
+      "sub": "Raro",
+      "cost": 3,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Equipa em Unidade ou Santo. +2 de Fé. A Fraqueza do portador não pode ser aumentada.",
+      "equipTarget": ["Unidade", "Santo"]
+    },
+    "icone": {
+      "id": "icone",
+      "name": "Ícone Sagrado",
+      "type": "Relíquia",
+      "sub": "Comum",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Equipa em Unidade ou Monumento. +1 de Fé no portador e nas cartas aliadas adjacentes.",
+      "equipTarget": ["Unidade", "Monumento"]
     },
     "vesperas": {
       "id": "vesperas",
@@ -423,30 +580,29 @@
       "slots": 0,
       "copies": 3,
       "deck": "aq",
-      "effect": "Requisito: Ter domínio de uma região. Instantâneo: A região perde 2 de Fraqueza e você compra 1 carta.",
-      "requirements": {
-        "minFe": 4
-      },
-      "instant": true
+      "effect": "Requisito: dominar a zona. Suas unidades na zona perdem 2 de Fraqueza e você compra 1 carta.",
+      "target": "zone",
+      "req": {
+        "dominio": true
+      }
     },
     "eucaristia": {
       "id": "eucaristia",
       "name": "Eucaristia",
       "type": "Bencao",
       "sub": "Raro",
-      "cost": 5,
+      "cost": 4,
       "fe": 0,
       "fraq": 0,
       "slots": 0,
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/eucaristia.jpg",
-      "effect": "Requisito: Uma Capela ou Monumento superior na região + Relíquia Cálice Sagrado equipada. Instantâneo: Gera 10 de Fé na região.",
-      "requirements": {
-        "minFe": 10,
-        "requiresRelic": "calice"
-      },
-      "instant": true
+      "effect": "Sacramento: Padre. Requisito: um Monumento seu com o Cálice Sagrado na zona. Esse Monumento ganha +10 de Fé até o seu próximo turno.",
+      "target": "zone",
+      "sacramento": {
+        "minister": "padre"
+      }
     },
     "revelacao": {
       "id": "revelacao",
@@ -460,9 +616,11 @@
       "copies": 2,
       "deck": "aq",
       "backgroundImage": "assets/images/cards/revelacao.jpg",
-      "effect": "Requisito: 8 ou mais de Fé na região e domínio da região. Compra 3 cartas.",
-      "requirements": {
-        "minFe": 8
+      "effect": "Requisito: dominar uma zona com 8 ou mais de Fé sua. Compre 3 cartas.",
+      "target": "zone",
+      "req": {
+        "dominio": true,
+        "zoneFe": 8
       }
     },
     "batismo": {
@@ -470,16 +628,18 @@
       "name": "Batismo",
       "type": "Bencao",
       "sub": "Comum",
-      "cost": 3,
+      "cost": 2,
       "fe": 0,
       "fraq": 0,
       "slots": 0,
       "copies": 3,
-      "deck": "comun",
+      "deck": "aq",
       "backgroundImage": "assets/images/cards/batismo.jpg",
-      "effect": "Requisito: Uma Igreja ou Monumento superior na região + um Diácono ou superior. A unidade alvo recebe +1 de Fé, −1 de Fraqueza e perde todas as Heresias.",
-      "requirements": {
-        "minFe": 4
+      "effect": "Sacramento: Diácono e Capela. A unidade alvo ganha +1 de Fé e perde 3 de Fraqueza.",
+      "target": "allyUnit",
+      "sacramento": {
+        "minister": "diacono",
+        "place": "capela"
       }
     },
     "pentecoste": {
@@ -494,10 +654,155 @@
       "copies": 2,
       "deck": "jo",
       "backgroundImage": "assets/images/cards/pentecoste.jpg",
-      "effect": "Requisito: Domínio da Zona Central. Todas as unidades aliadas recebem +2 de Fé e −2 de Fraqueza.",
-      "requirements": {
-        "minFe": 12
+      "effect": "Requisito: dominar a Zona Central. Todas as suas unidades ganham +2 de Fé e perdem 2 de Fraqueza.",
+      "target": "none",
+      "req": {
+        "centralDominio": true
       }
+    },
+    "consagracao": {
+      "id": "consagracao",
+      "name": "Consagração",
+      "type": "Bencao",
+      "sub": "Raro",
+      "cost": 4,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Requisito: dominar a zona. Busque no baralho ou na mão o próximo templo da linha do Monumento alvo e coloque-o em campo sobre ele, sem custo.",
+      "target": "allyMonument",
+      "req": {
+        "dominio": true
+      }
+    },
+    "ordenacao": {
+      "id": "ordenacao",
+      "name": "Ordenação",
+      "type": "Bencao",
+      "sub": "Comum",
+      "cost": 1,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "comun",
+      "effect": "Busque no seu baralho a evolução da unidade alvo e coloque-a na mão.",
+      "target": "allyUnit"
+    },
+    "confissao": {
+      "id": "confissao",
+      "name": "Confissão",
+      "type": "Bencao",
+      "sub": "Raro",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Sacramento: Padre e Igreja. Remove todas as Heresias da unidade alvo e ela ganha +2 de Fé.",
+      "target": "allyUnit",
+      "backgroundImage": "assets/images/cards/blessing/confession.jpg",
+      "sacramento": {
+        "minister": "padre",
+        "place": "igreja"
+      }
+    },
+    "crisma": {
+      "id": "crisma",
+      "name": "Crisma",
+      "type": "Bencao",
+      "sub": "Raro",
+      "cost": 4,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Sacramento: Bispo e Capela. Suas unidades na zona ganham +2 de Fé e perdem 2 de Fraqueza.",
+      "target": "zone",
+      "sacramento": {
+        "minister": "bispo",
+        "place": "capela"
+      }
+    },
+    "uncao": {
+      "id": "uncao",
+      "name": "Unção dos Enfermos",
+      "type": "Bencao",
+      "sub": "Raro",
+      "cost": 3,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "aq",
+      "effect": "Sacramento: Padre. A unidade alvo perde toda a Fraqueza que tem agora e ganha +1 de Fé para cada 3 de Fraqueza removida.",
+      "target": "allyUnit",
+      "sacramento": {
+        "minister": "padre"
+      }
+    },
+    "louvor": {
+      "id": "louvor",
+      "name": "Louvor",
+      "type": "Bencao",
+      "sub": "Comum",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 3,
+      "deck": "jo",
+      "effect": "Suas unidades na zona ganham +2 de Fé até o seu próximo turno. Fervor: +3 em vez de +2.",
+      "target": "zone",
+      "fervor": true
+    },
+    "cruzada": {
+      "id": "cruzada",
+      "name": "Cruzada",
+      "type": "Bencao",
+      "sub": "Raro",
+      "cost": 4,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Todas as suas unidades ganham +2 de Fé até o seu próximo turno e +1 de Fraqueza permanente. Fervor: +3 de Fé em vez de +2.",
+      "target": "none",
+      "fervor": true
+    },
+    "te_deum": {
+      "id": "te_deum",
+      "name": "Te Deum",
+      "type": "Bencao",
+      "sub": "Épico",
+      "cost": 3,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 1,
+      "deck": "jo",
+      "effect": "Suas unidades na zona ganham +1 de Fé até o seu próximo turno. Fervor: +1 a mais para cada carta que você já jogou neste turno.",
+      "target": "zone",
+      "fervor": true
+    },
+    "graca": {
+      "id": "graca",
+      "name": "Graça na Fraqueza",
+      "type": "Bencao",
+      "sub": "Comum",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Até o seu próximo turno, a unidade alvo ganha Fé igual à metade da Fraqueza que ela tem agora (arredondada para baixo).",
+      "target": "allyUnit"
     },
     "inquisicao": {
       "id": "inquisicao",
@@ -510,10 +815,12 @@
       "slots": 0,
       "copies": 2,
       "deck": "aq",
-      "effect": "Requisito: Unidade inimiga com 8 ou mais de Fraqueza + domínio da região. Destrói a unidade inimiga alvo.",
-      "requirements": {
-        "minFraq": 8,
-        "requires2Zones": true
+      "backgroundImage": "assets/images/cards/inquisidor.jpg",
+      "effect": "Requisito: dominar a zona; alvo com 8 ou mais de Fraqueza. Destrói a unidade inimiga alvo. Não afeta cartas no topo da sua linha de evolução.",
+      "target": "enemyUnit",
+      "req": {
+        "dominio": true,
+        "targetFraq": 8
       }
     },
     "debate": {
@@ -527,9 +834,12 @@
       "slots": 0,
       "copies": 3,
       "deck": "comun",
-      "effect": "Requisito: Sua Fé e Fraqueza na região devem ser melhores que as do inimigo + 3 unidades na região. A passiva da unidade inimiga alvo é desativada por 2 rodadas e a região perde 1 de Fé.",
-      "requirements": {
-        "minFraq": 5
+      "effect": "Requisito: dominar a zona, ter menos Fraqueza que o oponente nela e haver 3 ou mais unidades na zona. A unidade alvo perde 1 de Fé e fica sem passiva por 2 rodadas.",
+      "target": "enemyUnit",
+      "req": {
+        "dominio": true,
+        "lessZoneFraq": true,
+        "unitsInZone": 3
       }
     },
     "exposicao_aq": {
@@ -543,9 +853,10 @@
       "slots": 0,
       "copies": 3,
       "deck": "aq",
-      "effect": "Requisito: Unidade inimiga com 8 ou mais de Fraqueza. A unidade inimiga alvo recebe +3 de Fraqueza.",
-      "requirements": {
-        "minFraq": 5
+      "effect": "Requisito: alvo com 6 ou mais de Fraqueza. A unidade inimiga alvo recebe +3 de Fraqueza.",
+      "target": "enemyUnit",
+      "req": {
+        "targetFraq": 6
       }
     },
     "simonia": {
@@ -559,9 +870,10 @@
       "slots": 0,
       "copies": 2,
       "deck": "aq",
-      "effect": "Requisito: Fraqueza total inimiga na região seja 5 ou mais. A unidade inimiga alvo perde 2 de Fé.",
-      "requirements": {
-        "minFraq": 5
+      "effect": "Requisito: o oponente ter 5 ou mais de Fraqueza na zona. A unidade inimiga alvo perde 2 de Fé.",
+      "target": "enemyUnit",
+      "req": {
+        "enemyZoneFraq": 5
       }
     },
     "heresia_alb": {
@@ -575,14 +887,15 @@
       "slots": 0,
       "copies": 2,
       "deck": "jo",
-      "effect": "Requisito: Fraqueza total inimiga na região seja 10 ou mais. Um Monumento inimigo perde 3 de Fé por turno durante 3 rodadas.",
-      "requirements": {
-        "minFraq": 10
+      "effect": "Requisito: o oponente ter 10 ou mais de Fraqueza na zona. O Monumento inimigo alvo perde 3 de Fé por 3 rodadas.",
+      "target": "enemyMonument",
+      "req": {
+        "enemyZoneFraq": 10
       }
     },
     "exposicao_jo": {
       "id": "exposicao_jo",
-      "name": "Exposição de Heresia",
+      "name": "Apostasia",
       "type": "Heresia",
       "sub": "Raro",
       "cost": 3,
@@ -591,9 +904,10 @@
       "slots": 0,
       "copies": 3,
       "deck": "jo",
-      "effect": "Requisito: Unidade inimiga com 5 ou mais de Fraqueza. Drena do inimigo uma quantidade de Fé igual à Fraqueza da unidade alvo.",
-      "requirements": {
-        "minFraq": 5
+      "effect": "Requisito: alvo com 6 ou mais de Fraqueza. O oponente perde Fé igual à Fraqueza da unidade alvo, no máximo 10.",
+      "target": "enemyUnit",
+      "req": {
+        "targetFraq": 6
       }
     },
     "iconoclastia": {
@@ -607,10 +921,11 @@
       "slots": 0,
       "copies": 2,
       "deck": "jo",
-      "effect": "Requisito: Fraqueza total na região seja 10 ou mais + domínio da região. Destrói 1 Relíquia inimiga à sua escolha.",
-      "requirements": {
-        "minFraq": 10,
-        "requires2Zones": true
+      "effect": "Requisito: dominar a zona e o oponente ter 10 ou mais de Fraqueza nela. Destrói uma Relíquia da carta inimiga alvo.",
+      "target": "enemyRelic",
+      "req": {
+        "dominio": true,
+        "enemyZoneFraq": 10
       }
     },
     "acusacao": {
@@ -624,9 +939,10 @@
       "slots": 0,
       "copies": 2,
       "deck": "jo",
-      "effect": "Requisito: Unidade inimiga com 6 ou mais de Fraqueza. A unidade inimiga alvo não gera Fé durante 2 rodadas.",
-      "requirements": {
-        "minFraq": 6
+      "effect": "Requisito: alvo com 6 ou mais de Fraqueza. A unidade alvo não gera Fé por 2 rodadas.",
+      "target": "enemyUnit",
+      "req": {
+        "targetFraq": 6
       }
     },
     "propaganda": {
@@ -640,9 +956,10 @@
       "slots": 0,
       "copies": 3,
       "deck": "comun",
-      "effect": "Requisito: Fraqueza total inimiga na região seja 8 ou mais. A região perde 2 de Fé e todas as unidades inimigas na zona recebem +1 de Fraqueza.",
-      "requirements": {
-        "minFraq": 8
+      "effect": "Requisito: o oponente ter 8 ou mais de Fraqueza na zona. Unidades inimigas na zona recebem +1 de Fraqueza e o oponente perde 1 de Fé para cada 4 de Fraqueza que tem na zona.",
+      "target": "zone",
+      "req": {
+        "enemyZoneFraq": 8
       }
     },
     "profanacao": {
@@ -656,77 +973,76 @@
       "slots": 0,
       "copies": 2,
       "deck": "jo",
-      "effect": "Requisito: Fraqueza total inimiga seja 20 ou mais + domínio de 2 zonas. Destrói um Monumento inimigo à sua escolha.",
-      "requirements": {
-        "minFraq": 20,
-        "requires2Zones": true
+      "effect": "Requisito: o oponente ter 20 ou mais de Fraqueza em campo. Destrói o Monumento inimigo alvo. Não afeta a Catedral.",
+      "target": "enemyMonument",
+      "req": {
+        "enemyTotalFraq": 20
+      }
+    },
+    "tentacao": {
+      "id": "tentacao",
+      "name": "Tentação",
+      "type": "Heresia",
+      "sub": "Comum",
+      "cost": 1,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "A unidade inimiga alvo recebe +3 de Fraqueza. Fervor: +5 em vez de +3 e você compra 1 carta.",
+      "target": "enemyUnit",
+      "fervor": true
+    },
+    "escandalo": {
+      "id": "escandalo",
+      "name": "Escândalo",
+      "type": "Heresia",
+      "sub": "Comum",
+      "cost": 2,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 2,
+      "deck": "jo",
+      "effect": "Requisito: alvo com 6 ou mais de Fraqueza. As unidades inimigas adjacentes ao alvo recebem +3 de Fraqueza.",
+      "target": "enemyUnit",
+      "req": {
+        "targetFraq": 6
+      }
+    },
+    "cisma": {
+      "id": "cisma",
+      "name": "Cisma",
+      "type": "Heresia",
+      "sub": "Épico",
+      "cost": 5,
+      "fe": 0,
+      "fraq": 0,
+      "slots": 0,
+      "copies": 1,
+      "deck": "jo",
+      "effect": "Requisito: o oponente ter 12 ou mais de Fraqueza na zona. Até o seu próximo turno, o oponente não domina esta zona.",
+      "target": "zone",
+      "req": {
+        "enemyZoneFraq": 12
       }
     }
   },
   "DECK_LISTS": {
     "aq": [
-      "sta_santo",
-      "acolito",
-      "acolito",
-      "acolito",
-      "seminarista",
-      "seminarista",
-      "monge",
-      "monge",
-      "eremita",
-      "eremita",
-      "confessor",
-      "confessor",
-      "bispo",
-      "cardeal",
-      "capela",
-      "capela",
-      "mosteiro_beneditino",
-      "scriptorium",
-      "manto",
-      "manto",
-      "livro",
-      "relicario",
-      "calice",
-      "vesperas",
-      "vesperas",
-      "eucaristia",
-      "consagracao",
-      "revelacao",
-      "exposicao_aq",
-      "debate"
+      "sta_santo", "acolito", "acolito", "seminarista", "seminarista", "diacono",
+      "diacono", "padre", "padre", "bispo", "bispo", "cardeal",
+      "monge", "monge", "catecumeno", "martir", "inquisidor", "capela",
+      "capela", "igreja", "igreja", "scriptorium", "calice", "batismo",
+      "confissao", "uncao", "crisma", "eucaristia", "ordenacao", "inquisicao"
     ],
     "jo": [
-      "jo_santo",
-      "devoto",
-      "devoto",
-      "devoto",
-      "missionario",
-      "missionario",
-      "cavaleiro_templario",
-      "cavaleiro_templario",
-      "jovem_de_fe",
-      "jovem_de_fe",
-      "frei",
-      "capela",
-      "capela",
-      "convento",
-      "estandarte",
-      "armadura",
-      "armadura",
-      "icone",
-      "icone",
-      "louvor",
-      "louvor",
-      "cruzada",
-      "batismo",
-      "pentecoste",
-      "exposicao_jo",
-      "exposicao_jo",
-      "heresia_alb",
-      "iconoclastia",
-      "acusacao",
-      "propaganda"
+      "jo_santo", "devoto", "devoto", "missionario", "cavaleiro_templario", "cavaleiro_templario",
+      "frei", "frei", "jovem_de_fe", "jovem_de_fe", "pregador", "capela",
+      "capela", "igreja", "cruz_joana", "estandarte", "armadura", "icone",
+      "louvor", "louvor", "cruzada", "te_deum", "graca", "tentacao",
+      "tentacao", "escandalo", "cisma", "exposicao_jo", "acusacao", "propaganda"
     ]
   }
 }
